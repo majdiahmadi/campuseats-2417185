@@ -2,31 +2,31 @@
 const vendors = [
   {
     id: 'my-restaurant',
-    name: 'Your Restaurant Name',
-    location: 'Mahallah ..., Block ...',
+    name: 'Kafe Mahallah Ali',
+    location: 'Mahallah Ali, Ground Floor',
     openHours: '7:00 am - 10:00 pm',
     isOpen: true,
     menu: [
       {
         id: 'my-1',
-        name: 'Dish 1',
-        description: '...',
+        name: 'Nasi Lemak Ayam',
+        description: 'Coconut rice with fried chicken, sambal, egg and peanuts',
         price: 7.5,
         category: 'Rice',
         available: true,
       },
       {
         id: 'my-2',
-        name: 'Dish 2',
-        description: '...',
+        name: 'Mee Goreng Mamak',
+        description: 'Fried noodles with vegetables, egg and spicy sauce',
         price: 6,
         category: 'Noodles',
         available: true,
       },
       {
         id: 'my-3',
-        name: 'Drink 1',
-        description: '...',
+        name: 'Teh Tarik',
+        description: 'Traditional Malaysian pulled milk tea',
         price: 2.5,
         category: 'Drinks',
         available: false,
@@ -58,6 +58,6 @@ const vendors = [
       },
     ],
   },
-];
+]
 
-export default vendors;
+export default vendors
