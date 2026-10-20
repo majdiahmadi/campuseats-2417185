@@ -3,96 +3,88 @@
 
 ## Week 1
 
-- **Tool(s):**
-  - ChatGPT (OpenAI)
+### Tool(s)
+- ChatGPT (OpenAI)
 
-- **What I asked for:**
-  - Asked for step-by-step guidance on setting up a React project using Vite.
-  - Asked for help fixing npm errors related to missing `package.json`.
-  - Asked how to clean the default Vite starter files.
-  - Asked for help fixing a missing `hero.png` import error.
-  - Asked for explanations of React components, JSX, and how to use `Welcome.jsx` and `CourseInfo.jsx`.
-  - Asked for guidance on composing multiple components in `App.jsx`.
+### What I Asked For
+- Asked for step-by-step help to set up a React project using Vite.
+- Asked how to fix npm errors caused by a missing `package.json`.
+- Asked how to remove the default Vite starter files.
+- Asked for help fixing an error related to a missing `hero.png` file.
+- Asked for explanations about React components and JSX.
+- Asked how to create and use `Welcome.jsx` and `CourseInfo.jsx`.
+- Asked how to combine different components in `App.jsx`.
 
-- **What I kept, changed or rejected, and why:**
-  - Followed the guidance to run npm commands inside the correct project directory.
-  - Removed unnecessary starter code and updated the React components according to the lab instructions.
-  - Used the suggested component structure to understand how React components work together.
-  - Checked the code against the lab sheet to ensure it followed the requirements.
+### What I Kept or Changed
+- Followed the instructions to run npm commands in the correct project folder.
+- Removed unnecessary starter code.
+- Updated the React components based on the lab instructions.
+- Used the suggested code to understand how React components work together.
+- Checked my code against the lab sheet.
 
-- **One thing the AI got wrong and how I fixed it:**
-  - The earlier project code still referenced an image file (`hero.png`) that was not available, causing a Vite import error.
-  - I fixed the issue by replacing the old `App.jsx` code with the required `Welcome` and `CourseInfo` components.
+### One Thing AI Got Wrong and How I Fixed It
+- The code still tried to import `hero.png`, but the image was missing.
+- This caused an error when running the project.
+- I fixed it by updating `App.jsx` to use the required `Welcome` and `CourseInfo` components.
 
 ## Week 2
 
-- **Tool(s):**
-  - ChatGPT (OpenAI)
-
-- **What I asked for:**
-  - Asked for explanations of Git commands such as `git add`, `git commit`, and `git push`.
-  - Asked how to view commit history in Git and GitHub.
-  - Asked for help fixing a JavaScript syntax error in `vendors.js`.
-  - Asked how to implement Add to Cart using React props and state.
-  - Asked for help updating `MenuItemCard.jsx`, `MenuList.jsx`, and `App.jsx`.
-  - Asked for code reviews of `Header.jsx`, `VendorCard.jsx`, `Footer.jsx`, and `main.jsx`.
-
-- **What I kept, changed or rejected, and why:**
-  - Used the explanations to understand Git and React state management.
-  - Corrected the syntax error in `vendors.js`.
-  - Updated the components to pass the `onAdd` function through props.
-  - Implemented `useState` to store cart items and update the cart badge.
-  - Checked the suggested code against the lecturer's lab instructions.
-
-- **One thing the AI got wrong and how I fixed it:**
-  - During the cart implementation, `cartCount` was declared twice in `Header.jsx`, causing a compilation error.
-  - I checked the error and removed `const cartCount = 0` so that `Header` could receive `cartCount` as a prop from `App.jsx`.
-
-
-## Week 3 - Lab 3: Forms, Lifted State and Effects
-
-### AI Tools Used
+### Tool(s)
 - ChatGPT (OpenAI)
 
-### How I Used AI
-I used ChatGPT to help me understand and implement the
-requirements for Lab 3 Part B in my CampusEats React project.
-
-I asked ChatGPT to guide me step by step through:
-- Converting vendors.js into vendors.json.
-- Fetching vendor data using useEffect and fetch().
-- Implementing loading and error handling.
-- Managing cart items and quantities using lifted state.
-- Creating CartItem and CartPage components.
-- Building a checkout form with input validation.
-- Implementing my personal feature, Daily Special
-  with Countdown, using useEffect and setInterval.
+### What I Asked For
+- Asked for explanations of Git commands such as `git add`, `git commit`, and `git push`.
+- Asked how to check commit history in Git and GitHub.
+- Asked for help fixing a syntax error in `vendors.js`.
+- Asked how to create an Add to Cart feature using React.
+- Asked for help updating `MenuItemCard.jsx`, `MenuList.jsx`, and `App.jsx`.
+- Asked for code reviews of `Header.jsx`, `VendorCard.jsx`, `Footer.jsx`, and `main.jsx`.
 
 ### What I Kept or Changed
-I used the suggested code as a reference and integrated
-it into my existing Week 2 project.
+- Used the explanations to understand Git and React state.
+- Fixed the syntax error in `vendors.js`.
+- Updated the components to pass the `onAdd` function using props.
+- Used `useState` to store cart items.
+- Updated the cart badge to show the number of items.
+- Checked the code against the lecturer's instructions.
 
-I kept my original CampusEats components and vendor
-information while adding the new Lab 3 functionality.
+### One Thing AI Got Wrong and How I Fixed It
+- During the cart implementation, `cartCount` was declared twice in `Header.jsx`.
+- This caused an error in the application.
+- I removed `const cartCount = 0` and used `cartCount` from `App.jsx` through props.
 
-I also updated the vendor IDs, added more menu items,
-and connected the cart and checkout components.
+## Week 3
 
-### AI Mistake or Limitation
-Initially, the AI provided the cart functionality
-before all the required components were connected.
-As a result, the cart page was temporarily displayed
-as a placeholder.
+### Tool(s)
+- ChatGPT (OpenAI)
 
-I had to continue integrating CartPage and
-CheckoutForm before the cart and checkout process
-could work together.
+### What I Asked For
+- Asked for step-by-step guidance to complete Lab 3 Part B.
+- Asked how to convert `vendors.js` into `vendors.json`.
+- Asked how to fetch vendor data using `useEffect` and `fetch()`.
+- Asked how to display loading and error messages.
+- Asked how to manage cart items and quantities using React state.
+- Asked how to create `CartItem.jsx` and `CartPage.jsx`.
+- Asked how to create a checkout form with input validation.
+- Asked how to create a Daily Special countdown using `useEffect` and `setInterval`.
+
+### What I Kept or Changed
+- Used the suggested code and added it to my existing Week 2 project.
+- Kept my original CampusEats components and vendor information.
+- Updated the vendor IDs and added more menu items.
+- Added functions to increase, decrease, and remove cart items.
+- Connected the cart page and checkout form.
+- Added my Daily Special countdown feature.
+
+### One Thing AI Got Wrong and How I Fixed It
+- At first, the cart page was only a placeholder.
+- The cart and checkout components were not connected yet.
+- I continued following the steps to create `CartPage.jsx` and `CheckoutForm.jsx`.
+- I then updated `App.jsx` to connect everything.
 
 ### What I Learned
-I learned how to use controlled inputs, validate form
-data, lift state between components, and calculate
-derived values using reduce().
-
-I also learned how useEffect works with API requests
-and how to clean up intervals using clearInterval().
-
+- I learned how to create forms and check user input.
+- I learned how to share state between React components.
+- I learned how to calculate cart totals using `reduce()`.
+- I learned how to fetch data using `useEffect`.
+- I also learned how to use `clearInterval()` to stop a countdown timer.
