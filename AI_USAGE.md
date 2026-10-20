@@ -47,3 +47,52 @@
 - **One thing the AI got wrong and how I fixed it:**
   - During the cart implementation, `cartCount` was declared twice in `Header.jsx`, causing a compilation error.
   - I checked the error and removed `const cartCount = 0` so that `Header` could receive `cartCount` as a prop from `App.jsx`.
+
+
+## Week 3 - Lab 3: Forms, Lifted State and Effects
+
+### AI Tools Used
+- ChatGPT (OpenAI)
+
+### How I Used AI
+I used ChatGPT to help me understand and implement the
+requirements for Lab 3 Part B in my CampusEats React project.
+
+I asked ChatGPT to guide me step by step through:
+- Converting vendors.js into vendors.json.
+- Fetching vendor data using useEffect and fetch().
+- Implementing loading and error handling.
+- Managing cart items and quantities using lifted state.
+- Creating CartItem and CartPage components.
+- Building a checkout form with input validation.
+- Implementing my personal feature, Daily Special
+  with Countdown, using useEffect and setInterval.
+
+### What I Kept or Changed
+I used the suggested code as a reference and integrated
+it into my existing Week 2 project.
+
+I kept my original CampusEats components and vendor
+information while adding the new Lab 3 functionality.
+
+I also updated the vendor IDs, added more menu items,
+and connected the cart and checkout components.
+
+### AI Mistake or Limitation
+Initially, the AI provided the cart functionality
+before all the required components were connected.
+As a result, the cart page was temporarily displayed
+as a placeholder.
+
+I had to continue integrating CartPage and
+CheckoutForm before the cart and checkout process
+could work together.
+
+### What I Learned
+I learned how to use controlled inputs, validate form
+data, lift state between components, and calculate
+derived values using reduce().
+
+I also learned how useEffect works with API requests
+and how to clean up intervals using clearInterval().
+
