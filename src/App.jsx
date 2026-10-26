@@ -27,9 +27,6 @@ function App() {
   useEffect(() => {
     const controller = new AbortController()
 
-    setLoading(true)
-    setError(null)
-
     fetch('/api/vendors.json', {
       signal: controller.signal
     })
@@ -59,18 +56,19 @@ function App() {
     return () => controller.abort()
   }, [reloadKey])
 
+
   // Find selected vendor
   const selectedVendor = vendors.find(
     (vendor) => vendor.id === selectedVendorId
   )
 
-  // B6: Select the daily special from Kafe Mahallah Ali
+// B6: Daily Special for Jackal's Corner
 const specialVendor = vendors.find(
-  (vendor) => vendor.id === '2417185-my-restaurant'
+  (vendor) => vendor.id === '2417185-jackals-corner'
 )
 
 const specialItem = specialVendor?.menu.find(
-  (item) => item.id === '2417185-my-1'
+  (item) => item.id === '2417185-jc-1'
 )
 
   // B3: Calculate total cart quantity

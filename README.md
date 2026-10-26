@@ -199,9 +199,44 @@ CampusEats is currently a front-end application.
 
 ## Vendor Credits
 
-Kafe Mahallah Ali is my own vendor.
+CampusEats includes four restaurant vendors, consisting of my own restaurant and three additional restaurants shared by classmates.
 
-Additional vendor data should be credited to the classmates who provided it, where applicable.
+| Restaurant | Matric Number | Menu Items | Categories |
+|------------|---------------|------------|------------|
+| Jackal's Corner | 2417185 | 10 | 5 |
+| Sarap Pagi | 2415663 | 8 | 4 |
+| Mahasiswa Vendor | 2410319 | 5 | 2 |
+| Chef Haddif Expert | 2412181 | 8 | 3 |
+
+### My Restaurant
+
+**Jackal's Corner (2417185)**
+- Location: Nilai, Negeri Sembilan
+- Operating Hours: 8:00 AM - 10:00 PM
+- Menu: 10 items across 5 categories
+- Categories: Western, Pasta, Rice, Drinks, and Desserts
+- Daily Special: Jackal's Signature Chicken Chop
+
+### Classmates' Restaurants
+
+**Sarap Pagi (2415663)**
+- Location: Cafe Faruq, Mahallah Faruq
+- Menu: 8 items across 4 categories
+- Restaurant data provided by a classmate.
+
+**Mahasiswa Vendor (2410319)**
+- Location: International Islamic University Malaysia
+- Menu: 5 items across 2 categories
+- Restaurant data provided by a classmate.
+
+**Chef Haddif Expert (2412181)**
+- Location: Mahallah Faruq, Block A
+- Menu: 8 items across 3 categories
+- Restaurant data provided by a classmate.
+
+### Acknowledgement
+
+Only restaurant and menu data were shared between classmates. The React components, cart functionality, checkout form, API fetching, and Daily Special countdown were implemented in my own CampusEats project.
 
 ---
 
