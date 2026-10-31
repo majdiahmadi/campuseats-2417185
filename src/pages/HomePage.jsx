@@ -44,26 +44,25 @@ export default function HomePage() {
   return (
     <>
       {/* Display today's featured menu item with a countdown. */}
-      {specialItem && (
-        <section>
-          <h2 className="section-title">
-            Today's Special
-          </h2>
 
-          {/* Reuse the existing Week 3 countdown component. */}
-          <DailySpecial
-            item={specialItem}
-            endTime="22:00"
-          />
+{/* Display today's special with its countdown and vendor link. */}
+{specialItem && (
+  <section>
+    {/* Reuse the Week 3 DailySpecial component.
+        It already displays the Today's Special heading. */}
+    <DailySpecial
+      item={specialItem}
+      endTime="22:00"
+    />
 
-          {/* Week 4 requirement: link the special to its vendor page. */}
-          <p>
-            <Link to={`/vendor/${specialVendor.id}`}>
-              View Jackal's Corner Menu
-            </Link>
-          </p>
-        </section>
-      )}
+    {/* Week 4 requirement: link the special to its vendor page. */}
+    <p>
+      <Link to={`/vendor/${specialVendor.id}`}>
+        View Jackal's Corner Menu
+      </Link>
+    </p>
+  </section>
+)}
 
       {/* Display the list of available restaurants. */}
       <section>

@@ -1,7 +1,7 @@
 
 import { BrowserRouter, Routes, Route } from 'react-router'
 
-// Import the provider that manages the shared cart and orders.
+// Import the provider that manages the shared cart and order history.
 import { CartProvider } from './context/CartProvider.jsx'
 
 // Import the shared layout containing Header, Outlet, and Footer.
@@ -14,51 +14,51 @@ import CartPage from './pages/CartPage.jsx'
 import OrdersPage from './pages/OrdersPage.jsx'
 import NotFoundPage from './pages/NotFoundPage.jsx'
 
-// App is the main entry point for CampusEats.
+// Main CampusEats application component.
 //
 // Week 4 architecture:
-// BrowserRouter handles page navigation.
-// CartProvider shares the cart and orders.
-// Layout displays the Header and Footer.
-// Routes determine which page appears in the Outlet.
+// 1. BrowserRouter manages navigation using URLs.
+// 2. CartProvider shares the cart and orders across all pages.
+// 3. Routes determines which page should be displayed.
+// 4. Layout keeps the Header and Footer visible on every page.
 function App() {
   return (
     <BrowserRouter>
 
-      {/* Share shopping cart and order history across all pages. */}
+      {/* Provide shared cart and order data to the entire application. */}
       <CartProvider>
 
-        {/* Define the application's routes. */}
+        {/* Choose which page to display based on the current URL. */}
         <Routes>
 
-          {/* Use the same Header and Footer for every page. */}
+          {/* Layout provides a shared Header, Outlet, and Footer. */}
           <Route element={<Layout />}>
 
-            {/* Home page: display all restaurants. */}
+            {/* Home page: displays restaurants and today's special. */}
             <Route
               index
               element={<HomePage />}
             />
 
-            {/* Restaurant page: read the vendor ID from the URL. */}
+            {/* Vendor page: displays the menu for the selected vendor ID. */}
             <Route
               path="vendor/:id"
               element={<VendorPage />}
             />
 
-            {/* Shopping cart and checkout page. */}
+            {/* Cart page: displays cart items and the checkout form. */}
             <Route
               path="cart"
               element={<CartPage />}
             />
 
-            {/* Display previously placed orders. */}
+            {/* Orders page: displays previously placed orders. */}
             <Route
               path="orders"
               element={<OrdersPage />}
             />
 
-            {/* Display a 404 page for unknown URLs. */}
+            {/* Not Found page: handles URLs that do not match any route. */}
             <Route
               path="*"
               element={<NotFoundPage />}
