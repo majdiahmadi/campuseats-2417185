@@ -1,280 +1,164 @@
+# CampusEats - React Milestone Explanation
 
-# CampusEats — React Milestone Explanation
+**Student ID:** 2417185
+**Course:** BICS 3301 - Cross-Platform Software Development
+**My restaurant:** Jackal's Corner
+**Built with:** React and Vite
 
-**Student ID:** 2417185  
-**Course:** BICS 3301 — Cross-Platform Software Development  
-**Restaurant:** Jackal's Corner  
-**Framework:** React with Vite
+## 1. About my project
 
-## 1. Project Overview
+CampusEats is a simple food ordering app that I built during React Labs 1-4. Users can choose a restaurant, look at its menu, add items to a cart, and place a sample order. They can also view their previous orders.
 
-CampusEats is a React-based campus food ordering application developed through the Week 1–4 practical labs.
+My restaurant is **Jackal's Corner** in Nilai, Negeri Sembilan. It has 10 menu items in five categories.
 
-My restaurant is **Jackal's Corner**, located in Nilai, Negeri Sembilan. The application allows users to browse restaurants, view menus, add food items to a shopping cart, complete a simulated checkout, and review their orders.
+## 2. How I organized the app
 
-## 2. Component Architecture
-
-The application uses reusable components, custom React hooks, React Context, and React Router.
-
-The main architecture is:
+In Week 4, I split the app into pages, reusable components, hooks, and Context. Before this, most of the app logic was inside `App.jsx`.
 
 ```text
 BrowserRouter
-└── CartProvider
-    └── Routes
-        └── Layout
-            ├── Header
-            ├── Outlet
-            │   ├── HomePage
-            │   ├── VendorPage
-            │   ├── CartPage
-            │   ├── OrdersPage
-            │   └── NotFoundPage
-            └── Footer
+`-- CartProvider
+    `-- Routes
+        `-- Layout
+            |-- Header
+            |-- Outlet
+            |   |-- HomePage
+            |   |-- VendorPage
+            |   |-- CartPage
+            |   |-- OrdersPage
+            |   `-- NotFoundPage
+            `-- Footer
 ```
 
-### Components
+Here is what each part does:
 
-Reusable user interface elements include:
+- **Pages:** Show the different parts of the app, such as Home, Cart, and Orders.
+- **Components:** Reusable parts like `VendorCard`, `MenuItemCard`, `CartItem`, `CheckoutForm`, and `DailySpecial`.
+- **Hooks:** Hold logic that can be reused, such as loading vendors or saving data.
+- **Context:** Keeps the cart and orders in one shared place.
 
-- `VendorCard.jsx` — Displays restaurant information.
-- `MenuList.jsx` — Displays menu items for a restaurant.
-- `MenuItemCard.jsx` — Displays an individual food item.
-- `CartItem.jsx` — Displays an item in the shopping cart.
-- `CheckoutForm.jsx` — Collects and validates checkout information.
-- `DailySpecial.jsx` — Displays the featured food item and countdown.
-- `Header.jsx` — Provides navigation and the cart badge.
-- `Footer.jsx` — Displays the application footer.
-- `Layout.jsx` — Provides the shared layout for all pages.
+This makes the project easier for me to read and update.
 
-### Pages
+## 3. How the shopping cart works
 
-The application separates its main views into:
+I use `CartProvider.jsx` to keep the cart and order information. Other components can get this data through the `useCart()` hook.
 
-- `HomePage.jsx`
-- `VendorPage.jsx`
-- `CartPage.jsx`
-- `OrdersPage.jsx`
-- `NotFoundPage.jsx`
+For example, when I add a food item:
 
-### Custom Hooks
+1. I open a restaurant menu and click **Add to Cart**.
+2. `MenuItemCard` calls the function passed to it by `MenuList`.
+3. `MenuList` uses `useCart()` to get `addToCart()`.
+4. `CartProvider` updates the cart.
+5. The number in the Header changes, and the Cart page shows the new item.
 
-- `useVendors.js` — Handles fetching restaurant data.
-- `useCart.js` — Provides access to shared cart state and actions.
-- `useLocalStorage.js` — Provides persistent browser storage.
+Before Week 4, I passed more cart functions through props from `App.jsx`. Using Context means I no longer need to pass the same functions through several components.
 
-### React Context
+## 4. Pages and navigation
 
-`CartProvider.jsx` manages the shared shopping cart and order history, while `cart-context.js` defines the context.
+I use React Router so the app can show different pages without doing a full page reload each time.
 
-This structure separates reusable UI, application pages, and state-management logic.
+| Route | Page |
+| --- | --- |
+| `/` | Home page with restaurants and Daily Special |
+| `/vendor/:id` | Menu for a restaurant |
+| `/cart` | Cart and checkout |
+| `/orders` | Order history |
+| `*` | Not-found page |
 
-## 3. State Management and Data Flow
+The Header uses `NavLink`. Restaurant cards and the Daily Special use `Link`. After a successful checkout, `useNavigate()` sends the user to the Orders page.
 
-Restaurant information is fetched from `/api/vendors.json` using the custom `useVendors()` hook.
+`Layout.jsx` keeps the same Header and Footer on every page.
 
-The application uses `CartProvider` to manage shared shopping cart state. The custom `useCart()` hook allows components to access shopping cart actions without passing the same props through multiple parent components.
+## 5. Saving the cart and orders
 
-### Example: Adding an Item to the Cart
+I created `useLocalStorage()` to save data in the browser. The app uses:
 
-1. The user opens Jackal's Corner.
-2. The user clicks **Add to Cart** on a menu item.
-3. `MenuItemCard` calls the function provided by `MenuList`.
-4. `MenuList` obtains `addToCart` using the `useCart()` hook.
-5. `CartProvider` updates the shared shopping cart state.
-6. The Header cart badge updates automatically.
-7. The Cart page displays the updated items, quantities, and total price.
+- `campuseats-cart` for cart items.
+- `campuseats-orders` for placed orders.
 
-This approach reduces prop drilling and makes the shopping cart accessible across different pages.
+I tested this by adding items, refreshing the page, and checking that they were still there. I also refreshed the Orders page after placing an order.
 
-## 4. React Router Navigation
+The data is only saved in that browser. It is not stored in an online database.
 
-The application uses React Router to manage navigation.
+## 6. My personal feature: Daily Special countdown
 
-| Route | Purpose |
-|---|---|
-| `/` | Display restaurants and today's special |
-| `/vendor/:id` | Display a selected restaurant's menu |
-| `/cart` | Display the shopping cart and checkout |
-| `/orders` | Display previously placed orders |
-| `*` | Display the not-found page |
+My matric number ends with **5**, so my assigned feature is a Daily Special countdown.
 
-The shared `Layout` component displays the Header and Footer across different pages.
+I chose **Jackal's Signature Chicken Chop** from Jackal's Corner. The countdown ends at **10:00 PM (22:00)** based on the user's device time.
 
-`NavLink` is used for navigation links in the Header, while `Link` is used for restaurant cards and other page links.
+I used `useState()` to store the remaining time and `useEffect()` to update it every second. I also used `clearInterval()` so the timer stops when the component is removed.
 
-React Router allows users to navigate between views without requiring a full browser reload.
+This is part of the code in `DailySpecial.jsx`:
 
-## 5. Local Storage Persistence
+```jsx
+const [remaining, setRemaining] = useState(
+  () => getRemainingSeconds(endTime)
+)
 
-The application uses the custom `useLocalStorage()` hook to save shopping cart and order information in the browser.
+useEffect(() => {
+  function updateCountdown() {
+    setRemaining(getRemainingSeconds(endTime))
+  }
 
-Two storage keys are used:
+  updateCountdown()
+  const intervalId = setInterval(updateCountdown, 1000)
 
-- `campuseats-cart` — Stores shopping cart items.
-- `campuseats-orders` — Stores previously placed orders.
+  return () => clearInterval(intervalId)
+}, [endTime])
+```
 
-The hook initializes state from browser local storage and updates the stored data when the corresponding state changes.
+The remaining time appears as `HH:MM:SS`. After the time reaches zero, the app shows **"Today's special has ended."** instead of a negative countdown.
 
-As a result:
+For Week 4, I also added the Daily Special to the Home page with a link to Jackal's Corner menu. The featured item is fixed for now; it does not change automatically each day.
 
-1. Cart items remain available after refreshing the browser.
-2. Order history remains available after refreshing the browser.
-3. Navigation between pages does not reset the cart.
+## 7. Checkout and order history
 
-This is browser-based persistence rather than server-side storage.
+On the Cart page, users can change quantities, remove food, and fill in the checkout form. The form checks the name, mahallah, and pickup time before accepting the order.
 
-## 6. Personal Feature — Daily Special Countdown
+When a valid order is placed, the app saves it to the order history, clears the cart, and opens `/orders`. The new order starts with the status **Received**.
 
-Based on the final digit of my student ID (**5**), my assigned personal feature is **Daily Special with Countdown**.
+## 8. What I tested
 
-The featured menu item is **Jackal's Signature Chicken Chop** from Jackal's Corner.
+| Test | Result |
+| --- | --- |
+| Open a restaurant from the Home page | Passed |
+| Add the same item more than once | Passed |
+| Change item quantities and totals | Passed |
+| Refresh the Cart page | Cart stayed saved |
+| Submit an empty or invalid checkout form | Form blocked the order |
+| Place a valid order | Opened the Orders page |
+| Refresh the Orders page | Order stayed saved |
+| Open an unknown URL | Not-found page appeared |
+| Open the Daily Special link | Opened Jackal's Corner |
+| Check the countdown | Timer or expired message displayed |
 
-The feature is implemented in `DailySpecial.jsx`.
+I also ran:
 
-### React Concepts Used
-
-- `useState()` stores the remaining countdown time.
-- `useEffect()` manages the countdown lifecycle.
-- `setInterval()` updates the countdown every second.
-- `clearInterval()` cleans up the interval when the component unmounts.
-- Helper functions calculate and format the remaining time.
-
-### Countdown Implementation
-
-The countdown is calculated using the current device time and the configured ending time.
-
-The remaining time is displayed in `HH:MM:SS` format.
-
-The Daily Special ends at **22:00 according to the device's local time**.
-
-When the remaining time reaches zero, the component displays:
-
-**Today's special has ended.**
-
-The countdown does not display a negative value.
-
-### Week 4 Integration
-
-The Home page displays the featured item and its countdown.
-
-A link labelled **View Jackal's Corner Menu** allows the user to navigate directly to the restaurant's menu page.
-
-The featured item is selected using its unique ID:
-
-`2417185-jc-1`
-
-The restaurant is identified using:
-
-`2417185-jackals-corner`
-
-The current implementation uses a fixed featured menu item rather than rotating specials automatically.
-
-## 7. Checkout and Order History
-
-Users can add menu items to the cart, change quantities, remove items, and complete a simulated checkout.
-
-The checkout form collects customer information and validates the submitted details.
-
-### Checkout Process
-
-1. The user reviews the shopping cart.
-2. The user enters the required checkout information.
-3. The form validates the information.
-4. A valid submission creates an order record.
-5. The order is added to the order history.
-6. The shopping cart is cleared.
-7. The application navigates to the Orders page.
-
-Each order contains information about the customer, purchased items, total price, and order status.
-
-The initial order status is **Received**.
-
-Order history is saved in browser local storage and remains available after refreshing the page.
-
-## 8. Testing
-
-The application was tested during development to verify its main features.
-
-| Test | Expected Outcome |
-|---|---|
-| Load restaurant data | Restaurant cards appear |
-| Open Jackal's Corner | Correct restaurant menu appears |
-| Add an item to cart | Cart badge increases |
-| Add the same item twice | Item quantity increases |
-| Change item quantity | Total price recalculates |
-| Remove an item | Item disappears from cart |
-| Refresh cart page | Cart contents persist |
-| Submit invalid checkout | Validation prevents submission |
-| Submit valid checkout | Order is created |
-| Complete checkout | Cart becomes empty |
-| Open order history | Previous orders are displayed |
-| Refresh orders page | Order history persists |
-| Navigate to invalid route | Not-found page appears |
-| Display Daily Special | Featured item and countdown appear |
-| End countdown | Expired message appears |
-| Click Daily Special link | Correct vendor page opens |
-
-### Code Quality Checks
-
-The project was also checked using:
-
-```powershell
+```bash
 npm run lint
 npm run build
 ```
 
-The linting process completed with **0 warnings and 0 errors**, and the Vite production build completed successfully.
+The last lint check showed **0 warnings and 0 errors**, and the build passed.
 
-## 9. Challenges and Improvements
+## 9. Problems I faced
 
-One important change during development was migrating from the Week 3 application structure to the Week 4 React Router and Context architecture.
+The biggest change was moving from one main `App.jsx` file to separate pages and shared cart state. I needed to make sure that the cart, checkout, and Daily Special still worked after the changes.
 
-Previously, the application managed navigation and shopping cart state directly within `App.jsx`.
+At first, the Daily Special could have been left behind during the move. I made sure it was included on the Home page. I also removed a duplicate **Today's Special** heading and deleted an old `CartPage.jsx` that was no longer needed.
 
-The Week 4 implementation separates pages into individual components and moves shared shopping cart state into `CartProvider`.
+I checked the app in the browser after making these changes instead of relying only on the build result.
 
-This makes the application easier to maintain, reduces prop drilling, and supports navigation between pages.
+## 10. What the app cannot do yet
 
-Another improvement was removing unused Week 3 compatibility code after the migration was completed.
+CampusEats is still a class project. It uses a local JSON file for restaurant data and browser storage for orders. There is no real payment, online database, or restaurant system connected to it.
 
-The original CSS was retained to preserve the CampusEats design.
+## 11. AI help
 
-## 10. Current Limitations
+I used ChatGPT to help me understand React, check errors, and work through the Week 4 changes. It also helped me organize my documentation. I checked the suggestions against my existing code and tested the app after making changes.
 
-CampusEats is a coursework prototype.
+I wrote down the details in [AI_USAGE.md](AI_USAGE.md).
 
-The current implementation has several limitations:
+## 12. What I learned
 
-- Restaurant data is loaded from a local JSON file.
-- Shopping cart and order history are stored in browser local storage.
-- Orders are not synchronized between different devices.
-- The checkout process does not process real payments.
-- The Daily Special uses a fixed featured item.
-- There is no production backend or restaurant order management system.
-
-These limitations are appropriate for the current React development milestone.
-
-## 11. AI Assistance
-
-AI assistance was used during development for:
-
-- Understanding React concepts.
-- Explaining React Router navigation.
-- Understanding React Context and custom hooks.
-- Reviewing and debugging code.
-- Improving component organization.
-- Checking functionality and testing procedures.
-- Preparing project documentation.
-
-The separate `AI_USAGE.md` file records AI assistance and development reflections.
-
-The project was developed and tested as part of the BICS 3301 practical coursework.
-
-## 12. Conclusion
-
-Through the Week 1–4 CampusEats development activities, I implemented a React application using reusable components, hooks, Context, React Router, and browser local storage.
-
-The application supports restaurant browsing, menu viewing, shopping cart management, checkout, order history, and the Daily Special countdown feature.
-
-The project demonstrates how React components and shared state can work together to build an interactive single-page application.
+These labs helped me understand how React components, hooks, routing, and shared state work together. I also learned that when I reorganize an app, I need to test older features again to make sure nothing has stopped working.
