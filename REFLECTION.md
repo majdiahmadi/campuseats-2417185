@@ -116,3 +116,111 @@ I learned how to use `setInterval()` inside `useEffect` to update the countdown 
 I tested the countdown to make sure it updated correctly and continued working when navigating between the menu and cart pages.
 
 This feature helped me understand how React effects can be used for time-based functionality and why proper cleanup is important.
+
+---
+
+# Week 4 Reflection
+
+## 1. What did you learn about React Router?
+
+I learned that React Router allows a React application to display different pages based on the URL without requiring a full page reload.
+
+In CampusEats, I used React Router to create separate pages for the restaurant list, vendor menus, shopping cart, order history, and invalid routes.
+
+I used `BrowserRouter`, `Routes`, and `Route` to define navigation, while `Link` and `NavLink` allow users to move between pages.
+
+I also learned how to use dynamic URL parameters, such as `/vendor/:id`, to display the correct restaurant.
+
+## 2. What is the difference between props and React Context?
+
+Props allow a parent component to pass data or functions directly to its child components.
+
+React Context allows multiple components to access shared data without passing the same props through every intermediate component.
+
+During Week 2 and Week 3, I managed cart state in `App.jsx` and passed cart-related functions to other components using props.
+
+In Week 4, I moved the shared cart state into `CartProvider.jsx`.
+
+Now, components such as `Header`, `MenuList`, and `CartPage` can access the shared cart through the `useCart()` hook.
+
+This reduced prop drilling and made the application easier to organize.
+
+## 3. Why are custom hooks useful in React?
+
+Custom hooks allow developers to reuse stateful logic without repeating the same code in multiple components.
+
+In CampusEats, I implemented three custom hooks:
+
+- `useVendors()` handles restaurant data fetching, loading, errors, and retry functionality.
+- `useCart()` provides access to shared shopping cart and order state.
+- `useLocalStorage()` handles saving and retrieving data from browser localStorage.
+
+These hooks separate application logic from the user interface and make the code easier to understand and maintain.
+
+## 4. How does localStorage improve CampusEats?
+
+Before Week 4, the shopping cart was stored in React state and could be lost when the page was refreshed.
+
+In Week 4, I used the `useLocalStorage()` hook to preserve shopping cart and order history data.
+
+The application uses `campuseats-cart` to store cart items and `campuseats-orders` to store completed orders.
+
+I tested this by adding items to the cart, refreshing the browser, and checking whether the items remained.
+
+I also placed a simulated order and refreshed the Orders page to verify that the order history was preserved.
+
+This helped me understand the difference between temporary React state and browser-based persistent storage.
+
+## 5. How did you implement navigation after checkout?
+
+I learned how to use the `useNavigate()` hook to change pages programmatically.
+
+In CampusEats, when a customer submits valid checkout information, the application creates an order through the shared `CartProvider`.
+
+The order is added to the order history, and the shopping cart is cleared.
+
+The application then navigates automatically to `/orders`, where the customer can view the completed order.
+
+This helped me understand how shared state management and navigation can work together.
+
+## 6. How did you preserve your Daily Special feature during the Week 4 migration?
+
+My personal feature is the Daily Special Countdown because my matric number ends with 5.
+
+I already implemented the feature during Week 3 using `useState`, `useEffect`, `setInterval`, and `clearInterval`.
+
+During Week 4, I needed to preserve the feature while moving from the original `App.jsx` structure to separate pages.
+
+I reused the existing `DailySpecial.jsx` component in `HomePage.jsx` and added a link to Jackal's Corner.
+
+I also corrected a duplicate heading that appeared during the integration.
+
+This taught me that restructuring an application requires checking existing functionality carefully so that previously completed features are not accidentally removed.
+
+## 7. What challenges did you face during Week 4?
+
+One of the main challenges was migrating the existing CampusEats application from a single-page structure managed by `App.jsx` to a structure using React Router, Context, and custom hooks.
+
+I needed to understand which responsibilities belonged in pages, reusable components, hooks, and Context.
+
+Another challenge was maintaining the existing shopping cart, checkout, and Daily Special functionality during the migration.
+
+I also needed to remove temporary compatibility code after the new architecture was working.
+
+At one point, the application appeared without its expected colors, so I reviewed `main.jsx`, `index.css`, and the CSS class names used in my components.
+
+I also accidentally pasted PowerShell output into the terminal. This produced multiple errors because PowerShell tried to interpret the output text as commands. I learned to distinguish commands from terminal output and verified that my project was still working.
+
+After completing the changes, I ran `npm run lint` and `npm run build`, and both checks passed successfully.
+
+These experiences helped me improve my debugging, testing, and project organization skills.
+
+## 8. What was the most important lesson from Week 4?
+
+The most important lesson was understanding how to organize a React application as it becomes more complex.
+
+Instead of placing navigation, data fetching, and shopping cart logic inside one large component, I learned how to separate these responsibilities using pages, components, custom hooks, and Context.
+
+I also learned that code changes should be tested carefully, especially when refactoring an existing application.
+
+Overall, Week 4 helped me understand how to build a more maintainable React application while preserving the features developed in previous labs.

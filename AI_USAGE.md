@@ -129,3 +129,83 @@
 - I learned how to troubleshoot an application by checking which data files it actually uses.
 - I learned how to use ESLint to identify coding issues and improve code quality.
 - I learned how to verify a production build and review changes before committing them to Git.
+
+---
+
+## Week 4
+
+### Tool(s)
+- ChatGPT (OpenAI)
+
+### What I Asked For
+- Asked for step-by-step guidance to complete the Week 4 React lab.
+- Asked how to install and use React Router.
+- Asked how to separate the application into individual pages.
+- Asked how to implement `BrowserRouter`, `Routes`, `Route`, `Link`, `NavLink`, `Outlet`, and `useNavigate`.
+- Asked how to create a shared Layout component with Header and Footer.
+- Asked how to create custom hooks for vendor fetching, cart access, and localStorage.
+- Asked how to use React Context to manage shopping cart and order state.
+- Asked how to migrate cart functionality from `App.jsx` to `CartProvider.jsx`.
+- Asked how to preserve shopping cart items and order history after refreshing the browser.
+- Asked how to create the Orders page and navigate to it after checkout.
+- Asked how to integrate my Daily Special countdown into the new Home page.
+- Asked for help removing old Week 3 compatibility code.
+- Asked for guidance when the application appeared without its original colors.
+- Asked for help understanding PowerShell errors caused by accidentally pasting terminal output.
+- Asked for code reviews, Git guidance, testing instructions, and documentation updates.
+
+### What I Kept or Changed
+- Installed React Router and reorganized the application into separate pages.
+- Created `HomePage.jsx`, `VendorPage.jsx`, `CartPage.jsx`, `OrdersPage.jsx`, and `NotFoundPage.jsx`.
+- Created `Layout.jsx` to provide a shared Header and Footer.
+- Created `useVendors.js` to separate restaurant fetching logic from page components.
+- Created `useLocalStorage.js` to manage persistent browser storage.
+- Created `useCart.js` to access shared shopping cart state.
+- Created `cart-context.js` and `CartProvider.jsx` for shared cart and order management.
+- Updated `Header.jsx` to use React Router navigation and the shared cart count.
+- Updated `VendorCard.jsx` to navigate directly to the corresponding restaurant page.
+- Updated `MenuList.jsx` to use `useCart()` instead of receiving the cart action from `App.jsx`.
+- Kept the existing cart quantity controls and checkout functionality.
+- Added an Orders page to display completed orders.
+- Used localStorage to preserve cart contents and order history.
+- Preserved the Daily Special countdown from Week 3.
+- Displayed the featured item on the Home page with a link to Jackal's Corner.
+- Removed the duplicate Daily Special heading.
+- Removed the unused Week 3 `components/CartPage.jsx`.
+- Retained the original CampusEats CSS provided for the practical labs.
+- Tested navigation, cart persistence, checkout, order history, and the Daily Special.
+- Verified that `npm run lint` completed with zero warnings and zero errors.
+- Verified that `npm run build` completed successfully.
+- Created `EXPLAIN.md` and updated the project README.
+
+### One Thing AI Got Wrong and How I Fixed It
+- During the Week 4 migration, an early suggestion to replace `App.jsx` with the new React Router structure did not fully account for preserving my existing Daily Special feature.
+- Replacing the old application structure without relocating this feature could have removed it from the interface.
+- I reviewed the existing implementation and ensured that the Daily Special was included in `HomePage.jsx` before completing the migration.
+- I also kept the original `DailySpecial.jsx` countdown logic instead of unnecessarily rewriting it.
+- Later, I noticed that the Today's Special heading appeared twice because both `HomePage.jsx` and `DailySpecial.jsx` displayed the heading.
+- I removed the duplicate heading from `HomePage.jsx` while preserving the original component.
+- I tested the application again to confirm that the countdown and vendor navigation continued working.
+
+### What I Learned
+- I learned how React Router manages navigation between pages in a single-page application.
+- I learned how to use dynamic URL parameters to display a selected restaurant.
+- I learned how to create a shared page layout using `Outlet`.
+- I learned the difference between passing props and accessing shared state through React Context.
+- I learned how to create custom hooks to reuse logic across components.
+- I learned how `CartProvider` makes shopping cart data available to different pages.
+- I learned how to use localStorage to preserve cart and order information after refreshing the browser.
+- I learned how to connect checkout with order history and page navigation.
+- I learned how to migrate an existing React application without losing previously implemented features.
+- I learned that a successful production build does not automatically guarantee that every visual or interactive feature works correctly.
+- I learned how to verify application functionality through browser testing.
+- I learned how to identify and remove unused components safely.
+- I learned how to check Git changes before committing.
+- I learned that AI-generated suggestions must be reviewed against the existing application and lecturer's instructions.
+
+### Reflection on AI Assistance
+ChatGPT was useful for explaining unfamiliar React concepts and guiding the migration from the Week 3 structure to the Week 4 architecture.
+
+However, I did not treat every suggestion as automatically correct. I compared the suggested changes with my existing components, preserved working functionality, and tested the application after important modifications.
+
+This helped me understand both the benefits and limitations of using AI as a programming assistant.
