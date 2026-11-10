@@ -1,73 +1,107 @@
 
 import { BrowserRouter, Routes, Route } from 'react-router'
 
+// Import the authentication provider for Firebase login and registration.
+import { AuthProvider } from './context/AuthProvider.jsx'
+
 // Import the provider that manages the shared cart and order history.
 import { CartProvider } from './context/CartProvider.jsx'
 
 // Import the shared layout containing Header, Outlet, and Footer.
 import Layout from './components/Layout.jsx'
 
-// Import all five pages required for Week 4.
+// Import the component that protects pages from guests.
+import ProtectedRoute from './components/ProtectedRoute.jsx'
+
+// Import all five pages from Week 4.
 import HomePage from './pages/HomePage.jsx'
 import VendorPage from './pages/VendorPage.jsx'
 import CartPage from './pages/CartPage.jsx'
 import OrdersPage from './pages/OrdersPage.jsx'
 import NotFoundPage from './pages/NotFoundPage.jsx'
 
+// Import the two new authentication pages for Week 5.
+import LoginPage from './pages/LoginPage.jsx'
+import RegisterPage from './pages/RegisterPage.jsx'
+
 // Main CampusEats application component.
 //
-// Week 4 architecture:
+// Week 5 architecture:
 // 1. BrowserRouter manages navigation using URLs.
-// 2. CartProvider shares the cart and orders across all pages.
-// 3. Routes determines which page should be displayed.
-// 4. Layout keeps the Header and Footer visible on every page.
+// 2. AuthProvider manages Firebase authentication.
+// 3. CartProvider shares cart and order data.
+// 4. Routes determines which page to display.
+// 5. Layout keeps Header and Footer visible.
+// 6. ProtectedRoute restricts Cart and Orders to signed-in users.
 function App() {
   return (
     <BrowserRouter>
 
-      {/* Provide shared cart and order data to the entire application. */}
-      <CartProvider>
+      {/* Share Firebase authentication across the entire application. */}
+      <AuthProvider>
 
-        {/* Choose which page to display based on the current URL. */}
-        <Routes>
+        {/* Share cart and order data across the entire application. */}
+        <CartProvider>
 
-          {/* Layout provides a shared Header, Outlet, and Footer. */}
-          <Route element={<Layout />}>
+          {/* Choose which page to display based on the current URL. */}
+          <Routes>
 
-            {/* Home page: displays restaurants and today's special. */}
-            <Route
-              index
-              element={<HomePage />}
-            />
+            {/* Layout provides the shared Header, Outlet, and Footer. */}
+            <Route element={<Layout />}>
 
-            {/* Vendor page: displays the menu for the selected vendor ID. */}
-            <Route
-              path="vendor/:id"
-              element={<VendorPage />}
-            />
+              {/* PUBLIC PAGE: Everyone can view restaurants and daily specials. */}
+              <Route
+                index
+                element={<HomePage />}
+              />
 
-            {/* Cart page: displays cart items and the checkout form. */}
-            <Route
-              path="cart"
-              element={<CartPage />}
-            />
+              {/* PUBLIC PAGE: Everyone can view a restaurant's menu. */}
+              <Route
+                path="vendor/:id"
+                element={<VendorPage />}
+              />
 
-            {/* Orders page: displays previously placed orders. */}
-            <Route
-              path="orders"
-              element={<OrdersPage />}
-            />
+              {/* PUBLIC PAGE: Users can log in with email or Google. */}
+              <Route
+                path="login"
+                element={<LoginPage />}
+              />
 
-            {/* Not Found page: handles URLs that do not match any route. */}
-            <Route
-              path="*"
-              element={<NotFoundPage />}
-            />
+              {/* PUBLIC PAGE: Users can register a new account. */}
+              <Route
+                path="register"
+                element={<RegisterPage />}
+              />
 
-          </Route>
-        </Routes>
+              {/* PROTECTED ROUTES: Only signed-in users can access these pages. */}
+              <Route element={<ProtectedRoute />}>
 
-      </CartProvider>
+                {/* PROTECTED PAGE: Shopping cart and checkout form. */}
+                <Route
+                  path="cart"
+                  element={<CartPage />}
+                />
+
+                {/* PROTECTED PAGE: Previously placed orders. */}
+                <Route
+                  path="orders"
+                  element={<OrdersPage />}
+                />
+
+              </Route>
+
+              {/* NOT FOUND PAGE: Handles URLs that do not match any route. */}
+              <Route
+                path="*"
+                element={<NotFoundPage />}
+              />
+
+            </Route>
+          </Routes>
+
+        </CartProvider>
+      </AuthProvider>
+
     </BrowserRouter>
   )
 }
