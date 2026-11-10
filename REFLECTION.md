@@ -139,3 +139,187 @@ Another mistake was pasting terminal output into PowerShell as if it were comman
 I learned that it is easier to manage a bigger app when each part has a clear job. Pages show the screens, hooks handle reusable logic, and Context shares data.
 
 I also learned that after making a big change, I should test the old features again. A successful build is useful, but I still need to check the app in the browser.
+
+---
+
+# Week 5 Reflection
+
+## 1. What did you learn about Firebase Authentication?
+
+I learned that Firebase Authentication is a service that helps an application manage user accounts.
+
+Before Week 5, CampusEats did not have a real login system. Users could browse restaurants and open the cart without signing in.
+
+Now the application uses Firebase Authentication so users can register, log in, and log out.
+
+I also learned that Firebase handles the authentication process, so I do not need to build my own server to check passwords.
+
+## 2. What is the difference between authentication and authorization?
+
+Authentication means checking who a user is.
+
+For example, when someone enters their email and password, Firebase checks whether the login information is valid.
+
+Authorization means checking what an authenticated user is allowed to do.
+
+In CampusEats, I use `ProtectedRoute` to control whether someone can open the Cart and Orders pages.
+
+However, I also learned that a protected React page is not enough to secure data in a database. Actual database permissions need to be enforced using security rules.
+
+## 3. What did you learn about AuthProvider and useAuth?
+
+I learned that `AuthProvider` works in a similar way to the `CartProvider` I made in Week 4.
+
+The difference is that `CartProvider` manages shopping cart information, while `AuthProvider` manages authentication information.
+
+I use `useAuth()` to access the current user and authentication functions from other components.
+
+For example, the Header can check whether someone is logged in and display their name without passing that information through many components.
+
+This helped me understand how React Context can manage different parts of an application.
+
+## 4. Why do we use onAuthStateChanged instead of checking the user only once?
+
+I learned that the authentication status can change while the application is running.
+
+A user might log in, log out, or refresh the browser.
+
+`onAuthStateChanged()` allows Firebase to notify the application about these changes.
+
+I use it inside `AuthProvider` so the user state can update automatically.
+
+I also learned why the loading state is important. The application needs to wait for Firebase to check the current user before deciding whether to show a protected page or redirect to login.
+
+Without this loading state, the application might briefly show the Login page even when the user is already signed in.
+
+## 5. How did you implement registration and login?
+
+I added two new pages, `RegisterPage.jsx` and `LoginPage.jsx`.
+
+The registration page allows users to enter their name, email, and password.
+
+I use Firebase Authentication to create the account and save the user's display name.
+
+For login, users can enter their email and password or continue with Google.
+
+I also added error handling so users can see a simple message when their login fails.
+
+I learned that these Firebase functions return Promises, so I need to use `async`, `await`, and `try/catch` when working with them.
+
+## 6. How did you protect the Cart and Orders pages?
+
+I created `ProtectedRoute.jsx` to check whether someone is logged in.
+
+When a guest tries to open `/cart` or `/orders`, the application redirects them to `/login`.
+
+After logging in, the user can return to the page they originally wanted to open.
+
+I used React Router's `Navigate`, `Outlet`, and `useLocation` to implement this.
+
+This helped me understand that React Router can do more than switch between pages. It can also decide which pages should be shown based on the user's authentication state.
+
+## 7. How did you update the Header for Week 5?
+
+In Week 4, my Header showed navigation links for Vendors, My Orders, and Cart.
+
+In Week 5, I added a Log in link for users who are not signed in.
+
+When a user is logged in, the Header displays their name and a Log out button.
+
+I used `useAuth()` to get the user information and logout function.
+
+I also used `useNavigate()` to return to the Home page after logout.
+
+I kept the original shopping cart badge working through `useCart()`.
+
+This helped me understand that a component can use information from more than one Context.
+
+## 8. How did you update your Daily Special feature?
+
+My personal feature is the Daily Special countdown because my matric number ends with 5.
+
+In Week 5, I needed to make this feature depend on the user's login status.
+
+Guests are asked to log in before they can view today's special.
+
+Signed-in users can see a personalized message containing their name, while the countdown continues running.
+
+I learned how to use the current user from `useAuth()` to change what a component displays.
+
+I also learned that I could add this functionality without completely rewriting the countdown logic from Week 3.
+
+## 9. What challenges did you face during Week 5?
+
+One of the main challenges was understanding how Firebase Authentication connects to the existing React application.
+
+I already had `CartProvider` from Week 4, so at first I needed to understand why another provider was necessary.
+
+After going through the code, I understood that the two providers have different responsibilities.
+
+I also needed to update `App.jsx` and `Header.jsx` without removing the existing routes or cart functionality.
+
+Another thing I checked was the CSS. I initially thought I might need additional styles for the login and registration pages, but the lecturer's stylesheet already included the Week 5 styles.
+
+This taught me to check the existing files before making unnecessary changes.
+
+## 10. What is the difference between Firebase Authentication and Cloud Firestore?
+
+I learned that Firebase Authentication and Cloud Firestore have different purposes.
+
+Firebase Authentication manages user accounts and helps the app identify who is signed in.
+
+Cloud Firestore is a database that can store application information such as restaurants, menu items, and orders.
+
+For Week 5, the main focus was authentication.
+
+The restaurant data still comes from the local JSON file, while cart and order information remain in browser `localStorage`.
+
+In the following labs, I will learn how to move application data to Firestore.
+
+## 11. How did you check your Week 5 implementation?
+
+I used the Week 5 lab sheet as a checklist and reviewed the main authentication features.
+
+The important things to check included registration, email/password login, Google sign-in, logout, and how the Header changes when the authentication state changes.
+
+I also needed to check what happens when a guest opens `/cart` or `/orders` and whether a signed-in user stays logged in after refreshing the browser.
+
+I reviewed the existing cart, restaurant navigation, and Daily Special to make sure the new authentication features did not interfere with them.
+
+I also updated the project documentation to explain the changes introduced in Week 5.
+
+## 12. What was the most important lesson from Week 5?
+
+The most important lesson was understanding how frontend authentication works.
+
+Before this lab, I knew how to manage local React state and share data through Context.
+
+Now I understand how React can connect to an external service like Firebase and respond when a user logs in or logs out.
+
+I also learned that authentication and application data are separate concerns.
+
+The experience helped me understand why it is important to organize code properly. Because I had already separated the cart logic and pages in Week 4, I could add authentication without rebuilding the whole application.
+
+---
+
+# Overall Reflection (Weeks 1–5)
+
+During these five weeks, I learned how a React application grows from simple components into a more complete application.
+
+In Week 1, I learned about JSX and components.
+
+In Week 2, I learned about props, state, events, and the Add to Cart feature.
+
+In Week 3, I learned about controlled forms, validation, data fetching, and updating state.
+
+In Week 4, I learned how to organize the app using React Router, custom hooks, Context, and localStorage.
+
+In Week 5, I learned how to connect Firebase Authentication and manage signed-in users.
+
+The biggest improvement in my understanding is that I can now see how these concepts connect.
+
+For example, React Router manages navigation, Context shares data, hooks handle reusable logic, and Firebase provides authentication.
+
+I still need more practice writing React code independently, especially when working with several components at the same time.
+
+However, I now have a clearer understanding of how CampusEats works and how to extend it in future labs.

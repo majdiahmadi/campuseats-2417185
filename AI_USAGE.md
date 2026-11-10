@@ -134,3 +134,98 @@ I accidentally pasted PowerShell output back into the terminal once, which cause
 ### How I checked AI suggestions
 
 I used the suggestions as a guide, but I still compared them with the lab instructions and my own code. I tested the cart, checkout, orders, and countdown after making changes. This showed me why it is important to check AI answers instead of copying everything without testing.
+
+---
+
+## Week 5
+
+### Tool used
+
+- ChatGPT (OpenAI)
+
+### What I asked for
+
+I asked for help understanding Firebase Authentication and how to connect it to my existing CampusEats React application.
+
+I wanted to understand how Firebase works, how to register and log in users, and how to protect pages that should only be accessible after login.
+
+I also asked for help with:
+
+- Setting up Firebase and connecting it using `.env.local`.
+- Understanding `firebase.js` and the Firebase configuration.
+- Creating an `AuthProvider` to manage authentication.
+- Using `useAuth()` to access the signed-in user.
+- Updating my existing `App.jsx` for Lab 5.
+- Updating `Header.jsx` to show the user's name and a Log out button.
+- Adding the Login and Register pages.
+- Understanding how `ProtectedRoute` works.
+- Checking whether my existing CSS needed changes.
+- Updating my documentation after completing Lab 5.
+
+### What I used or changed
+
+- Connected CampusEats to my Firebase project.
+- Added Firebase configuration using environment variables in `.env.local`.
+- Used Firebase Authentication for email/password registration and login.
+- Added Google sign-in and logout functionality.
+- Created `AuthProvider.jsx` to manage the authentication state.
+- Added `auth-context.js` and `useAuth.js` so components can access the current user.
+- Used `onAuthStateChanged()` to listen for authentication changes.
+- Added a loading state while Firebase checks whether a user is signed in.
+- Added `LoginPage.jsx` and `RegisterPage.jsx`.
+- Added error handling to show understandable authentication messages.
+- Created `ProtectedRoute.jsx` to restrict access to the Cart and Orders pages.
+- Updated `App.jsx` to wrap the application with `AuthProvider`.
+- Kept `CartProvider` inside `AuthProvider` so the existing cart system continues to work.
+- Updated `Header.jsx` to show a Log in link for guests.
+- Added the signed-in user's name and a Log out button to the Header.
+- Kept the existing vendor navigation and shopping cart badge.
+- Updated the Daily Special feature for signed-in users.
+- Reviewed `index.css` and confirmed the required Week 5 authentication styles were already included.
+- Updated the project documentation to reflect the new authentication features.
+
+### One thing AI got wrong
+
+The first suggestions focused mainly on updating `App.jsx` and `Header.jsx`. However, changing only these two files would not be enough to make Firebase Authentication work.
+
+I needed the other files, including `AuthProvider.jsx`, `useAuth.js`, `ProtectedRoute.jsx`, `LoginPage.jsx`, and `RegisterPage.jsx`, to complete the authentication flow.
+
+I also initially thought I might need to add more CSS for the login and registration pages. After reviewing the stylesheet, I found that the lecturer had already provided the required styles.
+
+This reminded me to check the existing project before adding or replacing code unnecessarily.
+
+### What I learned
+
+I learned that Firebase Authentication provides a way to manage real user accounts without building my own authentication server.
+
+I also learned the difference between authentication and authorization.
+
+Authentication checks who the user is. In my application, `ProtectedRoute` checks whether the user is signed in before allowing access to certain pages.
+
+I learned how `onAuthStateChanged()` helps the application detect login and logout changes and restore authentication state after refreshing the browser.
+
+I also understood that `AuthProvider` follows a similar pattern to `CartProvider`. Both use React Context to share information across components, but they manage different things.
+
+Another important lesson was that protecting a page in React is not the same as securing a database. Firebase security rules will be needed when the application starts storing data in Firestore.
+
+### How I checked AI suggestions
+
+I compared the suggestions with the Week 5 lab sheet and the code I had already written in Weeks 1–4.
+
+I reviewed the authentication flow, including registration, login, logout, navigation, and access to protected pages.
+
+I also checked that the existing shopping cart, order history, and restaurant navigation were not accidentally removed while adding authentication.
+
+The main lesson was to understand how the new Firebase components connect to the existing application rather than simply replacing files with AI-generated code.
+
+---
+
+## Overall Reflection on AI Usage
+
+Across Weeks 1–5, I used ChatGPT mainly as a learning and debugging assistant.
+
+It helped me understand React concepts, find mistakes, and organize my code. However, I also found that AI suggestions do not always match my existing project or the lecturer's requirements.
+
+When this happened, I needed to check the actual files, compare the instructions, and make adjustments.
+
+I learned that AI can help me understand a problem, but I still need to know what the code does and test whether it works in my application.
