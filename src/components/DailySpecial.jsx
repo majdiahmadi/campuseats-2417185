@@ -1,5 +1,7 @@
 
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router'
+import { useAuth } from '../hooks/useAuth.js'
 
 // Calculate seconds until today's closing time
 function getRemainingSeconds(endTime) {
@@ -25,6 +27,8 @@ function formatCountdown(seconds) {
 }
 
 function DailySpecial({ item, endTime = '22:00' }) {
+  const { user, loading } = useAuth()
+
   const [remaining, setRemaining] = useState(
     () => getRemainingSeconds(endTime)
   )
@@ -48,9 +52,32 @@ function DailySpecial({ item, endTime = '22:00' }) {
     return null
   }
 
+  // Wait until Firebase finishes checking authentication
+  if (loading) {
+    return null
+  }
+
+  // Guests must log in to see the daily special
+  if (!user) {
+    return (
+      <section className="card daily-special">
+        <h2>Today's Special</h2>
+
+        <p>
+          <Link to="/login">
+            Log in to see today's special
+          </Link>
+        </p>
+      </section>
+    )
+  }
+
+  // Signed-in users can see the personalized daily special
   return (
     <section className="card daily-special">
-      <h2>Today's Special</h2>
+      <h2>
+        Today's special for {user.displayName || user.email}
+      </h2>
 
       <h3>{item.name}</h3>
 
