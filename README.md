@@ -1,426 +1,274 @@
 # CampusEats
 
-**A React-based campus food ordering application developed for BICS 3301 – Cross-Platform Software Development at the International Islamic University Malaysia (IIUM).**
+**BICS 3301 – Cross-Platform Software Development | IIUM**  
+**Student ID:** 2417185  
+**My restaurant:** Jackal's Corner
 
-CampusEats is a coursework project that allows users to browse campus food vendors, view menus, add food to a shopping cart, complete a simulated checkout, and view order history. From Week 5, the application also supports user registration, email/password login, Google sign-in, logout, and members-only pages through Firebase Authentication.
+CampusEats is a food ordering app I have been building throughout my React practical labs. Students can browse campus restaurants, choose food, add items to a cart, and place sample orders. I started with a simple React interface, then added routing, shared cart state, Firebase Authentication, and now Cloud Firestore.
 
-The application is developed progressively through weekly practical labs to learn React and cross-platform software development concepts.
+This is still a **coursework project**, not a real food delivery or payment service.
 
-> **Project status:** Labs **1–5 completed** (as of Week 5). The app now uses React Router, Context API, custom hooks, localStorage persistence, Firebase Authentication, protected routes, and a Daily Special countdown. Cloud Firestore data integration is planned for Week 6.
+## What the app can do
 
-## Features
+### Browse restaurants and menus
 
-### Implemented in Weeks 1–4
+- View restaurant details, opening hours, menu items, and prices in RM.
+- Open a separate page for each restaurant.
+- Load vendors and menu items from **Cloud Firestore** using live `onSnapshot()` listeners.
+- See menu or restaurant changes without refreshing the page.
+- Show loading and error messages when data cannot be loaded.
 
-#### Vendor and menu
+### Shopping cart and checkout
 
-- Browse campus food vendors and view each vendor's menu on a separate page.
-- View food names, descriptions, categories, and prices in Malaysian ringgit (RM).
-- See vendor opening status and food availability.
-- Fetch vendor data from the local mock API (`/api/vendors.json`) with `fetch()`.
-- Display loading and error messages, with a **Try again** action if loading fails.
-- Navigate between vendors with React Router.
+- Add food to the cart, change quantities, and remove items.
+- See the total item count and price automatically.
+- Keep the cart after refreshing the browser using `localStorage`.
+- Fill in a name, mahallah, and pickup time, with form validation.
+- Save completed orders to Firestore, with one order document per vendor.
+- Clear the cart only after Firestore confirms the order was saved.
 
-#### Shopping cart
+### Accounts and protected pages
 
-- Add available items to the cart.
-- Increase an existing item's quantity when the same item is added again.
-- Increase/decrease quantities, remove items, and see the total quantity in the Header.
-- Automatically calculate line totals and the overall cart total.
-- Share cart state across pages through React Context (`CartProvider` and `useCart()`).
-- Preserve cart items after refresh using browser `localStorage`.
+- Register with a name, email, and password.
+- Log in with email/password or Google, and log out.
+- Show the signed-in user's name in the Header.
+- Send guests who open `/cart` or `/orders` to `/login`, then return them after login.
+- Restore the login session when the page refreshes.
 
-#### Checkout
+### Orders and live status
 
-- Enter a customer name, select a mahallah, and choose a pickup time.
-- Validate the checkout form before placing an order and show field-specific errors.
-- Create a **simulated** order after successful checkout.
-- Clear the cart and navigate to the Orders page after checkout.
+- View orders for the current signed-in user through a Firestore query.
+- See the steps **Received → Preparing → Ready → Collected**.
+- Watch an order status change on the page when it changes in Firestore.
+- Change the pickup time or cancel an order while its status is **Received**.
 
-#### Order history
+The order buttons are hidden after the status moves beyond Received, but this **is not database security**. Firestore Security Rules are part of a later lab.
 
-- View previously placed orders, including items, details, total price, and initial **Received** status.
-- Store order history in `localStorage`, so it remains available after refresh.
+## My personal feature: Daily Special
 
-#### Navigation, hooks, and context
+My matric number ends in **5**, so my assigned feature is **Daily Special with Countdown**. I chose **Jackal's Signature Chicken Chop** from Jackal's Corner.
 
-- Use React Router for `/`, `/vendor/:id`, `/cart`, `/orders`, and unknown routes (`*`).
-- Keep the Header and Footer visible through the shared `Layout` component and `Outlet`.
-- Use `Link` and `NavLink` for navigation without full page reloads.
-- Use `useVendors()` to fetch vendor data, `useCart()` to access shared cart state, and `useLocalStorage()` for browser persistence.
+I first made a countdown that ended at 10:00 PM using the device's time. In Week 5, I made the special available only to signed-in users and added a greeting using their name. In Week 6, I changed it so the special is controlled by Firestore:
 
-### Implemented in Week 5 — Firebase Authentication
+- `special: true` marks a menu item as the Daily Special.
+- `specialEndsAt` is a Firestore **Timestamp** that controls the countdown.
+- The timer updates every second and shows an expired message when it reaches zero.
+- Changing `specialEndsAt` in Firestore updates the countdown through the live menu listener.
 
-- Connect the React application to a Firebase project using the Firebase JavaScript SDK.
-- Read Firebase web configuration from a root-level `.env.local` file.
-- Register users using **email and password**, including a display name.
-- Sign in with **email and password** or a **Google account**.
-- Sign out of the application.
-- Listen for authentication changes with `onAuthStateChanged()` so the signed-in user is restored after page refresh.
-- Share the current user, auth-loading status, and sign-in/sign-out actions using `AuthProvider` and `useAuth()`.
-- Convert common Firebase authentication error codes into user-friendly messages.
-- Display **Log in** for guests, or **Hi, [name]** and **Log out** for signed-in users.
-- Protect the shopping cart (`/cart`) and order history (`/orders`) with `ProtectedRoute`.
-- Redirect guests to `/login` and return them to their intended page after successful sign-in.
-- Keep vendor browsing, the login page, and the registration page public.
+For Jackal's Corner, the feature is stored in:
 
-**Week 5 data scope:** Firebase Authentication manages accounts, but vendor/menu data still comes from local JSON. Cart and order history are still stored in browser `localStorage`, not Cloud Firestore. The cart and orders are not yet synchronized per account across different browsers or devices.
+```text
+vendors/2417185-jackals-corner/menu/2417185-jc-1
+```
 
-### Personal feature — Daily Special Countdown (matric ending in 5)
+The special only appears when those Firestore fields have been configured. Guests see a link asking them to log in rather than the food details.
 
-- Feature the **Jackal's Signature Chicken Chop** from Jackal's Corner.
-- Show a live countdown to the special's end time, updated every second with `setInterval()`.
-- Clean up the interval with `clearInterval()`.
-- Display remaining time in `HH:MM:SS` format and an expired message after the countdown ends.
-- Show the special on the Home page with a link to Jackal's Corner menu.
-- **Week 5 extension:** Require sign-in to view the personalized special. Guests see a prompt to log in; signed-in users see a personalized message such as **“Today's special for [name]”** while the countdown continues.
+## Technologies I used
 
-### Planned for later weeks
-
-- **Week 6:** Use Cloud Firestore for shared vendor/menu data and cloud-based orders.
-- **Week 7:** Apply Firestore security rules, roles, and permissions.
-- **Week 8:** Optimize, test, and deploy using Firebase Hosting.
-- Additional functionality in subsequent practical labs.
-
-## Tech Stack
-
-| Technology | Purpose |
+| Technology | How I use it |
 |---|---|
-| React | Build reusable user-interface components |
-| JavaScript (JSX) | Application logic and UI markup |
-| Vite | Development server and production builds |
-| React Router (`react-router`) | Client-side page navigation and protected routes |
-| React Context API | Share cart/order state and authentication state |
-| React Hooks | State, effects, and reusable logic |
-| Firebase Authentication | User registration, login, Google sign-in, logout, and auth session state |
-| Firebase JavaScript SDK | Connect the React app to the Firebase project |
-| `localStorage` | Persist cart and order history in the browser |
-| CSS | Application styling |
-| JSON | Local mock vendor and menu data |
-| Git and GitHub | Version control and weekly milestones |
+| React and JavaScript (JSX) | Build the app and its components |
+| Vite | Run the development server and create builds |
+| React Router | Move between pages and protect routes |
+| React Context and custom hooks | Share authentication/cart data and reuse logic |
+| Firebase Authentication | Register, log in, and manage users |
+| Cloud Firestore | Store live vendor menus and placed orders |
+| `localStorage` | Save the shopping cart in the browser |
+| CSS | Style the application |
+| Git and GitHub | Track my work each week |
 
-## Getting Started
+## How to run the project
 
-### Prerequisites
+### 1. Requirements
 
-- [Node.js](https://nodejs.org/) and npm (use a supported LTS version).
-- [Git](https://git-scm.com/).
-- A **Firebase project** with a registered Web app and **Authentication** enabled.
-- In Firebase Console → Authentication → Sign-in method, enable **Email/Password** and **Google**.
-- Make sure `localhost` is listed in Firebase Authentication's authorized domains when running locally, and allow browser pop-ups for Google sign-in.
+- Node.js and npm
+- A Firebase project with a registered Web app
+- Firebase Authentication enabled for **Email/Password** and **Google**
+- A **Cloud Firestore** database in the same Firebase project
 
-### Run locally
-
-**1. Clone the repository**
+### 2. Clone and install
 
 ```powershell
 git clone https://github.com/majdiahmadi/campuseats-2417185.git
-```
-
-**2. Open the project folder**
-
-```powershell
 cd campuseats-2417185
-```
-
-**3. Install dependencies**
-
-```powershell
 npm install
 ```
 
-The Firebase SDK is a project dependency. If it is missing from `package.json`, install it with `npm install firebase`.
+### 3. Set up Firebase
 
-**4. Create `.env.local` in the project root (next to `package.json`)**
-
-Copy the six values from **Firebase Console → Project settings → General → Your apps → Web app config**. Replace the placeholders with your own values.
+Create `.env.local` beside `package.json`. Copy the values from **Firebase Console → Project settings → General → Your apps → Web app configuration**.
 
 ```dotenv
-VITE_FIREBASE_API_KEY=YOUR_FIREBASE_API_KEY
-VITE_FIREBASE_AUTH_DOMAIN=YOUR_FIREBASE_AUTH_DOMAIN
-VITE_FIREBASE_PROJECT_ID=YOUR_FIREBASE_PROJECT_ID
-VITE_FIREBASE_STORAGE_BUCKET=YOUR_FIREBASE_STORAGE_BUCKET
-VITE_FIREBASE_MESSAGING_SENDER_ID=YOUR_FIREBASE_MESSAGING_SENDER_ID
-VITE_FIREBASE_APP_ID=YOUR_FIREBASE_APP_ID
+VITE_FIREBASE_API_KEY=YOUR_API_KEY
+VITE_FIREBASE_AUTH_DOMAIN=YOUR_AUTH_DOMAIN
+VITE_FIREBASE_PROJECT_ID=YOUR_PROJECT_ID
+VITE_FIREBASE_STORAGE_BUCKET=YOUR_STORAGE_BUCKET
+VITE_FIREBASE_MESSAGING_SENDER_ID=YOUR_SENDER_ID
+VITE_FIREBASE_APP_ID=YOUR_APP_ID
 ```
 
-Do **not** include quotation marks or spaces around `=`. Make sure `.gitignore` contains `.env.local` or `*.local` so your local configuration is not committed.
+Keep `.env.local` out of Git. These web configuration values identify the Firebase project; they do **not** replace proper Firestore Security Rules. Never put service account keys in Vite environment variables.
 
-> The Firebase **web configuration is not a server-side secret**; it identifies the Firebase project. It is still kept out of this coursework repository as instructed. Firebase Authentication and database security rules—not hiding web configuration—enforce access control. Never place service-account credentials or other server secrets in a `VITE_` variable.
+For local Google sign-in, make sure your development hostname is permitted in Firebase Authentication's authorized domains.
 
-**5. Start the development server**
+### 4. Start the app
 
 ```powershell
 npm run dev
 ```
 
-**6. Open the local URL displayed by Vite**, usually [http://localhost:5173/](http://localhost:5173/).
+Open the local URL shown by Vite, usually `http://localhost:5173/`.
 
-Restart `npm run dev` after changing `.env.local`.
+### 5. Load the sample restaurants into Firestore
 
-### Other commands
+On the development server, open:
+
+```text
+http://localhost:5173/seed
+```
+
+Click **Load demo data**. This reads `public/api/vendors.json` and writes vendor documents and menu subcollections to Firestore. The page is available only in development builds, but is **not an authorization mechanism**; do not expose it publicly.
+
+For the Daily Special, check that Jackal's Chicken Chop has `special: true` and a `specialEndsAt` field of type **Timestamp** in Firestore. The seed function preserves an existing timestamp, but an initial timestamp must be entered in Firebase Console.
+
+If the Home page says **“No restaurants are available at the moment”**, check whether the `vendors` collection has been seeded and whether `.env.local` points to the correct project.
+
+### 6. Check the code
 
 ```powershell
 npm run lint
 npm run build
-npm run preview
 ```
 
-### Firebase project details
+A build passing means the project compiles. I still need to test the Firestore reads, order actions, and real-time updates in the browser.
 
-- **Project nickname:** CampusEats (web app nickname from the pre-work: `campuseats-web`).
-- **Firebase project ID:** **[INSERT YOUR EXACT FIREBASE PROJECT ID]** — copy it from Firebase Console or your `VITE_FIREBASE_PROJECT_ID`. The ID may have an automatically added suffix.
-- **Plan:** Spark (no-cost) for the coursework.
-- **Sign-in methods:** Email/Password and Google.
-- **Firestore:** Prepared in pre-work for Week 6; no vendor or order data is stored there in Week 5.
-
-## Project Structure
+## Main project files
 
 ```text
 campuseats-2417185/
-├── public/
-│   └── api/
-│       └── vendors.json
+├── public/api/vendors.json
 ├── src/
 │   ├── components/
-│   │   ├── CartItem.jsx
-│   │   ├── CheckoutForm.jsx
 │   │   ├── DailySpecial.jsx
-│   │   ├── Footer.jsx
-│   │   ├── Header.jsx
-│   │   ├── Layout.jsx
-│   │   ├── MenuItemCard.jsx
-│   │   ├── MenuList.jsx
-│   │   ├── ProtectedRoute.jsx          # NEW Week 5
-│   │   ├── Status.jsx
-│   │   └── VendorCard.jsx
+│   │   ├── CheckoutForm.jsx
+│   │   ├── OrderActions.jsx
+│   │   ├── OrderStatus.jsx
+│   │   └── ...
 │   ├── context/
-│   │   ├── auth-context.js            # NEW Week 5
-│   │   ├── AuthProvider.jsx           # NEW Week 5
-│   │   ├── cart-context.js
-│   │   └── CartProvider.jsx
+│   │   ├── AuthProvider.jsx
+│   │   ├── CartProvider.jsx
+│   │   └── ...
 │   ├── hooks/
-│   │   ├── useAuth.js                 # NEW Week 5
+│   │   ├── useAuth.js
 │   │   ├── useCart.js
-│   │   ├── useLocalStorage.js
-│   │   └── useVendors.js
+│   │   ├── useVendors.js
+│   │   ├── useVendor.js
+│   │   ├── useMyOrders.js
+│   │   └── ...
 │   ├── pages/
-│   │   ├── CartPage.jsx
 │   │   ├── HomePage.jsx
-│   │   ├── LoginPage.jsx               # NEW Week 5
-│   │   ├── NotFoundPage.jsx
+│   │   ├── VendorPage.jsx
+│   │   ├── CartPage.jsx
 │   │   ├── OrdersPage.jsx
-│   │   ├── RegisterPage.jsx            # NEW Week 5
-│   │   └── VendorPage.jsx
+│   │   ├── LoginPage.jsx
+│   │   ├── RegisterPage.jsx
+│   │   ├── SeedPage.jsx
+│   │   └── NotFoundPage.jsx
+│   ├── services/
+│   │   ├── vendors.js
+│   │   └── orders.js
 │   ├── App.jsx
-│   ├── authErrors.js                   # NEW Week 5
-│   ├── firebase.js                     # NEW Week 5
-│   ├── index.css
-│   └── main.jsx
-├── .env.local                         # LOCAL ONLY - do not commit
-├── .gitignore
+│   └── firebase.js
+├── docs/m2/               # Screenshots for the M2 report
 ├── AI_USAGE.md
 ├── EXPLAIN.md
 ├── REFLECTION.md
-├── README.md
-├── package.json
-├── package-lock.json
-├── index.html
-└── vite.config.js
+└── README.md
 ```
 
-The layout above shows the files described in the Week 5 lab and the previously documented Weeks 1–4 project. Some existing filenames may vary in your local repository.
+This shows the main files used for Week 6 rather than every file in the repository.
 
-## Application Routes
+## Pages and routes
 
-| Route | Page | Access | Description |
-|---|---|---|---|
-| `/` | `HomePage` | Public | Vendor list and Daily Special entry point |
-| `/vendor/:id` | `VendorPage` | Public | Selected restaurant menu |
-| `/login` | `LoginPage` | Public | Email/password and Google login |
-| `/register` | `RegisterPage` | Public | Create an account with a name, email, and password |
-| `/cart` | `CartPage` | Signed-in only | Shopping cart and checkout |
-| `/orders` | `OrdersPage` | Signed-in only | Locally stored order history |
-| `*` | `NotFoundPage` | Public | Unknown URLs |
+| Route | Who can access it? | Purpose |
+|---|---|---|
+| `/` | Everyone | Browse restaurants and Daily Special entry |
+| `/vendor/:id` | Everyone | View a vendor's live menu |
+| `/login` | Everyone | Sign in |
+| `/register` | Everyone | Create an account |
+| `/cart` | Signed-in users | Shopping cart and checkout |
+| `/orders` | Signed-in users | Live order history and actions |
+| `/seed` | Development builds only | Upload sample vendor data |
+| `*` | Everyone | Not-found page |
 
-Every page is rendered inside the shared `Layout`, which displays the Header and Footer.
-
-## Application Architecture
+## How the data is stored
 
 ```text
-App
-└── BrowserRouter
-    └── AuthProvider                     (Firebase user, auth loading, auth actions)
-        └── CartProvider                 (cart, orders, cart actions)
-            └── Routes
-                └── Layout               (Header + Outlet + Footer)
-                    ├── /                HomePage
-                    ├── /vendor/:id      VendorPage
-                    ├── /login           LoginPage
-                    ├── /register        RegisterPage
-                    ├── ProtectedRoute   (checks user and loading)
-                    │   ├── /cart        CartPage
-                    │   └── /orders      OrdersPage
-                    └── *                NotFoundPage
+vendors/{vendorId}
+  └── menu/{itemId}
+
+orders/{orderId}
 ```
 
-**Cart state:** `CartProvider` owns the shared cart and order history; `useCart()` reads that state in the Header and relevant pages. The `useLocalStorage()` hook saves the cart and orders in the current browser.
+Each vendor has its own menu subcollection. Orders are stored separately because they need to be queried by the student's Firebase UID. I also save the vendor name, item names, and prices inside each order so an old order keeps the details from when it was placed, even if a menu changes later.
 
-**Authentication state:** `AuthProvider` listens to Firebase using `onAuthStateChanged()`. The `useAuth()` hook gives components access to `user`, `loading`, `register`, `login`, `loginWithGoogle`, and `logout`.
+The **cart still uses localStorage**, but **placed orders use Firestore**. Firebase Authentication handles the user account; it does not automatically protect the Firestore documents.
 
-**Protected pages:** `ProtectedRoute` checks `loading` first. Once Firebase has determined the user's status, it allows signed-in users through or redirects guests to `/login`. The login page can use the saved route to return users to the page they originally requested.
+## My progress through the labs
 
-## Weekly Development Progress
+| Week | What I worked on |
+|---|---|
+| 1 | React setup, JSX, and components |
+| 2 | Props, state, events, and Add to Cart |
+| 3 | JSON data, checkout validation, quantities, and Daily Special countdown |
+| 4 | React Router, Context, custom hooks, and localStorage |
+| 5 | Firebase Authentication, login/register, and protected pages |
+| 6 | Firestore services, live vendors and menus, cloud orders, order actions, and Timestamp-based Daily Special |
+| 7 | Firestore security rules and permissions (next) |
+| 8 | Testing, improvements, and deployment (planned) |
 
-| Week | Focus | Status |
-|---|---|---|
-| 1 | Git/GitHub setup, JSX, and React components | Completed |
-| 2 | Props, `useState`, vendor selection, and Add to Cart | Completed |
-| 3 | Cart quantities, checkout validation, API fetching, and Daily Special countdown | Completed |
-| 4 | React Router, Context API, custom hooks, localStorage, and order history | Completed |
-| 5 | Firebase setup, user registration, email/Google login, logout, auth context, protected routes, and personalized Daily Special | **Completed** |
-| 6 | Cloud Firestore integration for vendor/menu/order data | Planned |
-| 7 | Firestore security rules and access control | Planned |
-| 8 | Testing, optimization, and Firebase Hosting | Planned |
+Week 6 implementation has been added as part of the lab work. I still need to make sure the full browser tests, screenshots, and Git checkpoint are completed before treating the lab as fully verified.
 
-The project uses Git commits and weekly tags to track development. See [repository tags](https://github.com/majdiahmadi/campuseats-2417185/tags) for published milestones.
+## Testing and evidence
 
-## React and Firebase Concepts Learned
+For Week 6, these are the main things I need to check:
 
-### Week 1
+- Vendors and their menus load from Firestore after running `/seed`.
+- Changing a menu item's price in Firebase Console updates the page without refreshing.
+- Placing an order saves the correct details under `orders` and clears the cart.
+- Ordering from two vendors creates two order documents.
+- Changing an order's status updates the Orders page automatically.
+- Changing a pickup time and cancelling a Received order both work.
+- The Daily Special reads its deadline from Firestore and updates when that deadline changes.
+- `npm run lint` and `npm run build` finish without errors.
 
-- React components and JSX, declarative UI, fragments, and reusable components.
+The M2 report also needs these screenshots in `docs/m2/`:
 
-### Week 2
-
-- Props and state, `useState()`, `.map()` and keys, event handlers, and passing functions between components.
-
-### Week 3
-
-- Controlled inputs, validation, lifting state, `reduce()`, `useEffect()`, `fetch()`, loading/error handling, `AbortController`, and countdown timers.
-
-### Week 4
-
-- Client-side routing, dynamic URL parameters, `Link`/`NavLink`, `Outlet`, Context API, custom hooks, and `localStorage`.
-
-### Week 5
-
-- Firebase project configuration and `.env.local`.
-- `initializeApp()` and `getAuth()` from the Firebase SDK.
-- Registration with `createUserWithEmailAndPassword()` and `updateProfile()`.
-- Email/password sign-in with `signInWithEmailAndPassword()`.
-- Google sign-in with `signInWithPopup()` and `GoogleAuthProvider`.
-- Sign-out with `signOut()`.
-- Listening for sessions with `onAuthStateChanged()` and effect cleanup.
-- Sharing authentication state with `AuthProvider`, `AuthContext`, and `useAuth()`.
-- Using `ProtectedRoute`, `Navigate`, and `Outlet` to guard routes.
-- Using `async`/`await`, `try`/`catch`, and friendly authentication error messages.
-
-## Browser Persistence and Data Storage
-
-CampusEats currently stores cart and order history in the browser using the custom `useLocalStorage()` hook:
-
-- `campuseats-cart`
-- `campuseats-orders`
-
-Those keys keep data after refreshing the browser on the same device and browser profile, but they are **not user-specific cloud records**. Logging into a different account on the same browser does not automatically provide separate cloud order history. Cloud synchronization is planned for a later lab.
-
-Firebase Authentication stores account identities and manages sign-in sessions. It does **not**, by itself, move the cart, vendor menus, or orders into Firestore.
-
-## Personal Feature — Daily Special
-
-My matric number is **2417185**, so the final digit **5** corresponds to the **Daily Special Countdown** feature.
-
-The featured item is **Jackal's Signature Chicken Chop** from **Jackal's Corner**. The countdown ends at **22:00 (10:00 PM) according to the device's local time** and displays an expired message when the special ends. It updates with `setInterval()` and uses `clearInterval()` to clean up the timer.
-
-For Lab 5, the special is personalized for authenticated users. Guests are invited to log in, while a signed-in user can see the special addressed to their Firebase display name or email. The countdown continues to run for signed-in users.
-
-## Testing
-
-### Weeks 1–4 testing (previously documented)
-
-- Vendor data fetching and loading/error/retry behavior.
-- Vendor navigation, shopping cart actions, quantities, and total calculations.
-- Checkout form validation, simulated order placement, and order history.
-- Cart/order persistence, unknown routes, and Daily Special countdown.
-
-### Week 5 authentication acceptance checks
-
-The Lab 5 functionality can be demonstrated with these checks:
-
-1. Register a new account with a display name, email, and password.
-2. Log out and log back in using email/password.
-3. Sign in with Google.
-4. Confirm that the Header shows the user name and **Log out** after login, and **Log in** after logout.
-5. Open `/cart` or `/orders` while signed out; confirm redirection to `/login`.
-6. Sign in from that login page and confirm return to the originally requested protected page.
-7. Refresh while signed in; confirm that the authenticated session is restored.
-8. Enter invalid credentials or reuse an existing email; confirm a friendly error message appears.
-9. Check that the Daily Special prompts guests to log in and greets signed-in users.
-10. Confirm `.env.local` is not tracked by Git and that the browser console has no unexpected errors.
-
-### Code quality
-
-Use the following commands after the Week 5 changes:
-
-```powershell
-npm run lint
-npm run build
+```text
+fig-1-1-firestore-shop.png
+fig-2-0-order-doc.png
+fig-3-1-feature-data.png
 ```
 
-The earlier Weeks 1–4 version passed lint and build checks. Run them again for the Week 5 changes; successful Week 5 results should only be documented after they have actually been checked.
+I keep more detailed notes in [REFLECTION.md](REFLECTION.md), [EXPLAIN.md](EXPLAIN.md), and [AI_USAGE.md](AI_USAGE.md).
 
-## Academic Documentation and Version Control
+## Restaurants and credits
 
-- [AI_USAGE.md](AI_USAGE.md) — Records AI assistance used in weekly development, including Week 5 tools, prompts, kept/changed suggestions, and a mistake or correction.
-- [REFLECTION.md](REFLECTION.md) — Weekly reflections and learning experiences.
-- [EXPLAIN.md](EXPLAIN.md) — Notes on React architecture, state management, personal feature, and testing (if retained in the repository).
+I made **Jackal's Corner** for my personal CampusEats work. I also included sample restaurant data shared by three classmates, keeping their original IDs and giving them credit here.
 
-ChatGPT has been used for concept explanations, debugging help, implementation review, and documentation. Code is incorporated into the coursework project and should be checked against the lab requirements.
+| Restaurant | Student ID | Menu items |
+|---|---|---:|
+| Jackal's Corner | 2417185 | 10 |
+| Sarap Pagi | 2415663 | 8 |
+| Mahasiswa Vendor | 2410319 | 5 |
+| Chef Haddif Expert | 2412181 | 8 |
 
-**Week 5 checkpoint:** Commit the Lab 5 work, push the changes, and push a `week-5` tag after verification:
+There are **4 restaurants and 31 menu items** in the sample JSON data. My restaurant is based in Nilai, Negeri Sembilan, with Western, Pasta, Rice, Drinks, and Desserts on its menu.
 
-```powershell
-git add .
-git commit -m "Week 5: Firebase Auth, AuthContext and protected routes"
-git push
-git tag week-5
-git push origin week-5
-```
+## Current limitations
 
-Before creating the tag, check `git status` and confirm `.env.local` is not staged. If you have already created the `week-5` tag, do not create it a second time.
-
-## Current Project Limitations
-
-- Vendor data still loads from a local JSON file rather than Cloud Firestore.
-- Cart and order history are stored in browser `localStorage`, so they are not synchronized between devices or reliably separated by account.
-- Orders are simulated and are not sent to a real restaurant.
-- Real payment processing has not been implemented.
-- Firebase Authentication is integrated, but the application's business data is not yet stored in Firebase.
-- The Daily Special uses a fixed featured menu item and the device's local time.
-
-## Vendor Credits
-
-The following vendor information was documented during earlier development stages. The actual records in the application are determined by `public/api/vendors.json`.
-
-| Restaurant | Matric Number | Menu Items | Categories |
-|---|---|---:|---:|
-| Jackal's Corner | 2417185 | 10 | 5 |
-| Sarap Pagi | 2415663 | 8 | 4 |
-| Mahasiswa Vendor | 2410319 | 5 | 2 |
-| Chef Haddif Expert | 2412181 | 8 | 3 |
-
-### My restaurant: Jackal's Corner (2417185)
-
-- **Location:** Nilai, Negeri Sembilan.
-- **Operating hours:** 8:00 AM–10:00 PM.
-- **Menu:** 10 items in five categories: Western, Pasta, Rice, Drinks, and Desserts.
-- **Daily Special:** Jackal's Signature Chicken Chop.
-
-### Classmates' restaurant data
-
-Restaurant and menu data from classmates were used as mock vendor data during earlier lab work. The React components, cart, checkout, API fetching, routing, Firebase authentication integration, and personal feature were developed for this CampusEats coursework project.
+CampusEats is for learning and testing. There is no real restaurant connection, payment gateway, or production ordering service. The cart is saved in the current browser rather than synced between devices. Firestore test-mode rules are not suitable for a public app, and hiding buttons in React does not stop unauthorized database writes. Database security rules and further testing are important before any real deployment.
 
 ---
 
-*This repository is an academic learning project and will continue to evolve through subsequent practical labs.*
+*I built CampusEats step by step through my React labs. Each week helped me understand how the different parts of an app work together, and I am continuing to improve it as I learn.*

@@ -3,34 +3,33 @@ import { Link, useParams } from 'react-router'
 import MenuList from '../components/MenuList.jsx'
 import DailySpecial from '../components/DailySpecial.jsx'
 import { Loading, ErrorMessage } from '../components/Status.jsx'
-import { useVendors } from '../hooks/useVendors.js'
+import { useVendor } from '../hooks/useVendor.js'
 
-// VendorPage displays the menu of a specific restaurant.
-// The restaurant is identified using its ID in the URL.
+// VendorPage displays one restaurant and its live menu.
 export default function VendorPage() {
 
-  // Read the restaurant ID from the URL.
-  // Example: /vendor/2417185-jackals-corner
+  // Get the restaurant ID from the URL.
   const { id } = useParams()
 
-  // Fetch restaurant information using our custom hook.
-  const { vendors, loading, error, reload } = useVendors()
+  // Load the restaurant and its menu from Firestore.
+  const { vendor, menu, loading, error } = useVendor(id)
 
-  // Display a loading message while fetching restaurant data.
+  // Display a loading indicator.
   if (loading) {
     return <Loading />
   }
 
-  // Display an error message if fetching fails.
+  // Display any Firestore errors.
   if (error) {
-    return <ErrorMessage message={error} onRetry={reload} />
+    return (
+      <ErrorMessage
+        message={error}
+        onRetry={() => window.location.reload()}
+      />
+    )
   }
 
-  // Find the restaurant whose ID matches the URL.
-  const vendor = vendors.find((entry) => entry.id === id)
-
   // Handle an invalid restaurant ID.
-  // Example: /vendor/zzz
   if (!vendor) {
     return (
       <section>
@@ -45,47 +44,47 @@ export default function VendorPage() {
     )
   }
 
-  // Find Jackal's Corner's featured menu item.
-  // This preserves our Week 3 Daily Special feature.
-  const specialItem = vendor.id === '2417185-jackals-corner'
-    ? (vendor.menu ?? []).find(
-        (item) => item.id === '2417185-jc-1'
-      )
-    : null
+  // Attach vendor details to every menu item.
+  // This allows the cart to identify the restaurant.
+  const items = menu.map((item) => ({
+    ...item,
+    vendorId: vendor.id,
+    vendorName: vendor.name
+  }))
+
+  // Find the Daily Special using the Firestore special field.
+  const specialItem = items.find(
+    (item) => item.special === true
+  )
 
   return (
     <section>
 
-      {/* Allow users to return to the restaurant list. */}
+      {/* Navigation back to all restaurants. */}
       <p>
         <Link to="/">← All vendors</Link>
       </p>
 
-      {/* Display the selected restaurant's name. */}
+      {/* Display restaurant information. */}
       <h2 className="section-title">
         {vendor.name}
       </h2>
 
-      {/* Display the restaurant's location and opening hours. */}
       <p className="muted">
         {vendor.location} · {vendor.openHours}
       </p>
 
-      {/* Display the Daily Special for Jackal's Corner. */}
+      {/* Display the Daily Special using Firestore Timestamp. */}
       {specialItem && (
-        <DailySpecial
-          item={specialItem}
-          endTime="22:00"
-        />
+        <DailySpecial item={specialItem} />
       )}
 
-      {/* Display the menu heading. */}
+      {/* Display the live Firestore menu. */}
       <h2 className="section-title">
         Menu
       </h2>
 
-      {/* Display all menu items for the selected restaurant. */}
-      <MenuList items={vendor.menu ?? []} />
+      <MenuList items={items} />
 
     </section>
   )

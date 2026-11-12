@@ -12,22 +12,21 @@ const MAHALLAHS = [
   'Zubair'
 ]
 
-// Validate checkout details
+// Validate checkout details.
 function validate(values) {
   const errors = {}
 
-  // Name must contain at least 3 characters
+  // Name must contain at least 3 characters.
   if (values.name.trim().length < 3) {
-    errors.name =
-      'Enter your name (at least 3 characters).'
+    errors.name = 'Enter your name (at least 3 characters).'
   }
 
-  // Mahallah must be selected
+  // Mahallah must be selected.
   if (!values.mahallah) {
     errors.mahallah = 'Please select your mahallah.'
   }
 
-  // Pickup time must be between 07:00 and 22:00
+  // Pickup time must be between 07:00 and 22:00.
   if (
     !values.pickupTime ||
     values.pickupTime < '07:00' ||
@@ -40,33 +39,44 @@ function validate(values) {
   return errors
 }
 
-function CheckoutForm({ onPlaceOrder }) {
+// CheckoutForm collects and validates order information.
+function CheckoutForm({
+  defaultName = '',
+  onPlaceOrder,
+  busy = false
+}) {
+
+  // Store form input values.
   const [values, setValues] = useState({
-    name: '',
+    name: defaultName,
     mahallah: '',
     pickupTime: ''
   })
 
+  // Store form validation errors.
   const [errors, setErrors] = useState({})
 
-  // Update input values
+  // Update input values when the user types.
   function handleChange(event) {
     const { name, value } = event.target
 
-    setValues((prev) => ({
-      ...prev,
+    setValues((previous) => ({
+      ...previous,
       [name]: value
     }))
   }
 
-  // Handle form submission
+  // Validate and submit the form.
   function handleSubmit(event) {
     event.preventDefault()
+
+    // Do not submit while an order is being saved.
+    if (busy) return
 
     const found = validate(values)
     setErrors(found)
 
-    // Submit only when all inputs are valid
+    // Submit only when all fields are valid.
     if (Object.keys(found).length === 0) {
       onPlaceOrder(values)
     }
@@ -78,9 +88,10 @@ function CheckoutForm({ onPlaceOrder }) {
       onSubmit={handleSubmit}
       noValidate
     >
+
       <h3>Checkout</h3>
 
-      {/* Name */}
+      {/* Name field */}
       <label htmlFor="name">Name</label>
 
       <input
@@ -89,6 +100,7 @@ function CheckoutForm({ onPlaceOrder }) {
         value={values.name}
         onChange={handleChange}
         placeholder="Enter your name"
+        disabled={busy}
       />
 
       {errors.name && (
@@ -97,7 +109,7 @@ function CheckoutForm({ onPlaceOrder }) {
         </p>
       )}
 
-      {/* Mahallah */}
+      {/* Mahallah field */}
       <label htmlFor="mahallah">Mahallah</label>
 
       <select
@@ -105,6 +117,7 @@ function CheckoutForm({ onPlaceOrder }) {
         name="mahallah"
         value={values.mahallah}
         onChange={handleChange}
+        disabled={busy}
       >
         <option value="">Select...</option>
 
@@ -121,7 +134,7 @@ function CheckoutForm({ onPlaceOrder }) {
         </p>
       )}
 
-      {/* Pickup time */}
+      {/* Pickup time field */}
       <label htmlFor="pickupTime">
         Pickup time
       </label>
@@ -132,6 +145,7 @@ function CheckoutForm({ onPlaceOrder }) {
         type="time"
         value={values.pickupTime}
         onChange={handleChange}
+        disabled={busy}
       />
 
       {errors.pickupTime && (
@@ -140,9 +154,15 @@ function CheckoutForm({ onPlaceOrder }) {
         </p>
       )}
 
-      <button type="submit" className="btn">
-        Place order
+      {/* Submit the order to Firestore. */}
+      <button
+        type="submit"
+        className="btn"
+        disabled={busy}
+      >
+        {busy ? 'Placing order...' : 'Place order'}
       </button>
+
     </form>
   )
 }

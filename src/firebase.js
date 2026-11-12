@@ -1,5 +1,7 @@
+
 import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
+import { getFirestore } from 'firebase/firestore'
 
 // Collect the config that Vite loads from our .env.local file.
 const firebaseConfig = {
@@ -11,8 +13,11 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 }
 
-// Initialize our web app's connection to the Firebase project.
+// Initialize our web app's connection to Firebase.
 export const app = initializeApp(firebaseConfig)
 
-// Export Authentication so other files can register, log in, and log out.
+// Firebase Authentication
 export const auth = getAuth(app)
+
+// Cloud Firestore database
+export const db = getFirestore(app)

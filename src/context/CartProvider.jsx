@@ -2,15 +2,12 @@
 import { CartContext } from './cart-context.js'
 import { useLocalStorage } from '../hooks/useLocalStorage.js'
 
-// CartProvider manages the shared shopping cart and order history.
-// All components inside this provider can access the same data.
+// CartProvider manages the shared shopping cart.
+// Completed orders are now stored in Cloud Firestore.
 export function CartProvider({ children }) {
 
   // Store cart items in localStorage so they survive page refreshes.
   const [cart, setCart] = useLocalStorage('campuseats-cart', [])
-
-  // Store completed orders in localStorage.
-  const [orders, setOrders] = useLocalStorage('campuseats-orders', [])
 
   // Calculate the total quantity of all items in the cart.
   // Example: 2 burgers + 3 drinks = 5 items.
@@ -76,52 +73,20 @@ export function CartProvider({ children }) {
     )
   }
 
-  // Save a completed order and clear the shopping cart.
-  function placeOrder(details) {
-
-    // Prevent an empty cart from creating an order.
-    if (cart.length === 0) return
-
-    // Create an order containing checkout details and cart items.
-    const newOrder = {
-      id: globalThis.crypto?.randomUUID?.() ?? String(Date.now()),
-      ...details,
-
-      // Save a snapshot of the ordered items and quantities.
-      items: cart.map((line) => ({
-        item: { ...line.item },
-        qty: line.qty
-      })),
-
-      total,
-
-      // All new orders begin with Received status.
-      status: 'Received',
-
-      // Record when the order was placed.
-      createdAt: new Date().toISOString()
-    }
-
-    // Add the new order at the beginning of the order history.
-    setOrders((previousOrders) => [
-      newOrder,
-      ...previousOrders
-    ])
-
-    // Empty the shopping cart after placing the order.
+  // Empty the shopping cart after a successful Firestore order.
+  function clearCart() {
     setCart([])
   }
 
-  // Share the cart data and functions with other components.
+  // Share cart data and functions with other components.
   const contextValue = {
     cart,
-    orders,
     count,
     total,
     addToCart,
     changeQty,
     removeFromCart,
-    placeOrder
+    clearCart
   }
 
   // Make the shared cart available to all child components.

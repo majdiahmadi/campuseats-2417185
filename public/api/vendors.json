@@ -8,14 +8,15 @@
     "isOpen": true,
     "menu": [
       {
-        "id": "2417185-jc-1",
-        "name": "Jackal's Signature Chicken Chop",
-        "description": "Grilled chicken chop served with black pepper sauce, fries and coleslaw",
-        "price": 15.9,
-        "category": "Western",
-        "available": true,
-        "popular": true
-      },
+    "id": "2417185-jc-1",
+    "name": "Jackal's Signature Chicken Chop",
+    "description": "Grilled chicken chop served with black pepper sauce, fries and coleslaw",
+    "price": 15.9,
+    "category": "Western",
+    "available": true,
+    "popular": true,
+    "special": true
+    },
       {
         "id": "2417185-jc-2",
         "name": "Classic Beef Burger",

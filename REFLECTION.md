@@ -302,6 +302,34 @@ The experience helped me understand why it is important to organize code properl
 
 ---
 
+# Week 6 Reflection
+
+## 1. What happens from clicking Place Order until the order appears on the Orders page?
+
+When I click Place Order, the checkout form first checks that the name, mahallah, and pickup time are valid. If everything is okay, `handlePlaceOrder()` in `CartPage.jsx` calls `placeOrders()` in `services/orders.js`. This function groups the cart items by restaurant and uses `writeBatch()` to save a separate order for each restaurant in Firestore.
+
+After the orders are saved successfully, the cart is cleared and the app takes me to the Orders page. The `useMyOrders()` hook uses `subscribeToMyOrders()` to listen for my orders through `onSnapshot()`. When a new order appears in Firestore, the listener updates the page automatically, so I do not need to call `setOrders()` in the checkout page myself.
+
+## 2. Why is orders a top-level collection, and why do we save the vendor name and item details in each order?
+
+I learned that keeping `orders` as a top-level collection makes it easier to find orders from different restaurants in one place. I can use the student's Firebase UID to load only their orders with `where('studentUid', '==', uid)`.
+
+Each order also saves the restaurant name and the names and prices of the food items, instead of storing only their IDs. This is useful because menu details can change later. For example, if Jackal's Corner increases the Chicken Chop price, an old order should still show the price when the order was placed.
+
+It also means the Orders page can display the order details without fetching each menu item again.
+
+## 3. How does your Daily Special feature use Firestore in Week 6?
+
+My personal feature is the Daily Special countdown because my matric number ends with 5. I store the feature in Jackal's Corner's menu document at `vendors/2417185-jackals-corner/menu/2417185-jc-1`.
+
+The `special` field is set to `true` to mark the featured food, and `specialEndsAt` stores its ending time as a Firestore Timestamp.
+
+In `HomePage.jsx`, I find the featured item using `specialMenu.find((item) => item.special === true)`. In `DailySpecial.jsx`, I read the ending time with `item.specialEndsAt?.toMillis?.()` and use it to calculate the remaining seconds.
+
+Because the menu is loaded with `onSnapshot()`, changing the ending time in Firebase Console can update the countdown without refreshing the page.
+
+---
+
 # Overall Reflection (Weeks 1–5)
 
 During these five weeks, I learned how a React application grows from simple components into a more complete application.

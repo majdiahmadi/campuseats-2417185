@@ -1,85 +1,56 @@
 
 import { useEffect, useState } from 'react'
+import { subscribeToVendors } from '../services/vendors.js'
 
-// Custom hook for loading restaurant data from the local API.
+// Custom hook for loading live restaurant data from Firestore.
 // It manages vendors, loading status, errors, and retry functionality.
 export function useVendors() {
 
-  // Store the list of restaurants retrieved from the API.
+  // Store the list of restaurants retrieved from Firestore.
   const [vendors, setVendors] = useState([])
 
   // Track whether restaurant data is currently loading.
   const [loading, setLoading] = useState(true)
 
-  // Store an error message if fetching fails.
+  // Store an error message if the Firestore listener fails.
   const [error, setError] = useState(null)
 
-  // Changing this value allows the user to retry fetching.
+  // Changing this value allows the user to retry the subscription.
   const [reloadKey, setReloadKey] = useState(0)
 
-  // Fetch restaurant data when the hook first runs or reloadKey changes.
+  // Subscribe to restaurant data when the hook first runs
+  // or when reloadKey changes.
   useEffect(() => {
 
-    // Create a controller to cancel unfinished requests.
-    const controller = new AbortController()
+    // Start listening to the vendors collection in Firestore.
+    const unsubscribe = subscribeToVendors(
 
-    // Async function responsible for fetching restaurant data.
-    async function loadVendors() {
-      setLoading(true)
-      setError(null)
+      // This function runs whenever vendor data changes.
+      (data) => {
+        setVendors(data)
+        setLoading(false)
+      },
 
-      try {
-        // Request restaurant data from the local JSON API.
-        const response = await fetch('/api/vendors.json', {
-          signal: controller.signal
-        })
-
-        // Detect HTTP errors such as 404 or 500.
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`)
-        }
-
-        // Convert the JSON response into JavaScript data.
-        const data = await response.json()
-
-        // Ensure that the API returns an array of restaurants.
-        if (!Array.isArray(data)) {
-          throw new Error('Invalid vendor data format')
-        }
-
-        // Save the retrieved restaurants into React state.
-        if (!controller.signal.aborted) {
-          setVendors(data)
-        }
-
-      } catch (err) {
-        // Ignore errors caused by intentionally cancelling a request.
-        if (!controller.signal.aborted) {
-          setError(err.message)
-        }
-
-      } finally {
-        // Stop displaying the loading indicator.
-        if (!controller.signal.aborted) {
-          setLoading(false)
-        }
+      // This function runs if Firestore encounters an error.
+      (err) => {
+        setError(err.message)
+        setLoading(false)
       }
-    }
+    )
 
-    // Start loading the restaurant data.
-    loadVendors()
-
-    // Cancel the request when the component unmounts
+    // Stop listening when the component unmounts
     // or before the effect runs again.
-    return () => controller.abort()
+    return unsubscribe
 
   }, [reloadKey])
 
-  // Allow components to manually retry loading restaurant data.
+  // Allow components to manually retry the Firestore subscription.
   function reload() {
+    setLoading(true)
+    setError(null)
     setReloadKey((previous) => previous + 1)
   }
 
-  // Provide restaurant data and fetch controls to components.
+  // Provide restaurant data and subscription controls to components.
   return { vendors, loading, error, reload }
 }

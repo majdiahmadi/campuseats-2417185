@@ -1,11 +1,16 @@
 
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router'
+
 import CartItem from '../components/CartItem.jsx'
 import CheckoutForm from '../components/CheckoutForm.jsx'
+
 import { useCart } from '../hooks/useCart.js'
+import { useAuth } from '../hooks/useAuth.js'
+import { placeOrders } from '../services/orders.js'
 
 // CartPage displays the shopping cart and checkout form.
-// It uses the shared CartProvider instead of receiving cart props.
+// Week 6 saves completed orders in Cloud Firestore.
 export default function CartPage() {
 
   // Access the shared cart data and functions.
@@ -14,28 +19,61 @@ export default function CartPage() {
     total,
     changeQty,
     removeFromCart,
-    placeOrder
+    clearCart
   } = useCart()
 
-  // React Router hook for navigating after checkout.
+  // Get the currently signed-in Firebase user.
+  const { user } = useAuth()
+
+  // Navigate to the Orders page after successful checkout.
   const navigate = useNavigate()
 
-  // Handle checkout after CheckoutForm validates the input.
-  function handlePlaceOrder(details) {
+  // Store any errors that happen while saving the order.
+  const [error, setError] = useState('')
 
-    // Prevent orders from being placed with an empty cart.
-    if (cart.length === 0) {
+  // Prevent duplicate orders while Firestore is processing.
+  const [busy, setBusy] = useState(false)
+
+  // Save the order to Firestore after form validation.
+  async function handlePlaceOrder(details) {
+
+    // Prevent duplicate submissions.
+    if (busy) return
+
+    // Prevent empty orders or orders without a signed-in user.
+    if (cart.length === 0 || !user) {
+      setError('Please log in and add items before checkout.')
       return
     }
 
-    // Save the order and clear the cart through CartProvider.
-    placeOrder(details)
+    // Clear previous errors and show processing state.
+    setError('')
+    setBusy(true)
 
-    // Redirect the customer to the order history page.
-    navigate('/orders')
+    try {
+
+      // Save orders to Cloud Firestore.
+      await placeOrders(user, cart, details)
+
+      // Only clear the cart after Firestore confirms success.
+      clearCart()
+
+      // Redirect to the live Orders page.
+      navigate('/orders')
+
+    } catch (err) {
+
+      // Keep the cart if saving fails.
+      setError(`Could not place the order: ${err.message}`)
+
+    } finally {
+
+      // Stop the processing state.
+      setBusy(false)
+    }
   }
 
-  // Display an empty-cart message when no items are selected.
+  // Display an empty-cart message.
   if (cart.length === 0) {
     return (
       <section>
@@ -46,7 +84,6 @@ export default function CartPage() {
             Your cart is currently empty.
           </p>
 
-          {/* Return to the restaurant list. */}
           <Link to="/">Browse Restaurants</Link>
         </div>
       </section>
@@ -55,17 +92,18 @@ export default function CartPage() {
 
   return (
     <section>
-      {/* Display the shopping cart heading. */}
+
       <h2 className="section-title">Your Cart</h2>
 
       <div className="cart-layout">
 
-        {/* Display all items currently in the cart. */}
+        {/* Display the selected cart items. */}
         <div className="card">
+
           <ul className="cart-list">
             {cart.map((line) => (
               <CartItem
-                key={line.item.id}
+                key={`${line.item.vendorId}-${line.item.id}`}
                 line={line}
                 onChangeQty={changeQty}
                 onRemove={removeFromCart}
@@ -77,10 +115,23 @@ export default function CartPage() {
           <p className="cart-total">
             Total: RM {total.toFixed(2)}
           </p>
+
         </div>
 
-        {/* Reuse the existing validated checkout form. */}
-        <CheckoutForm onPlaceOrder={handlePlaceOrder} />
+        {/* Checkout form with the signed-in user's name. */}
+        <div>
+          {error && (
+            <p className="field-error" role="alert">
+              {error}
+            </p>
+          )}
+
+          <CheckoutForm
+            defaultName={user?.displayName ?? ''}
+            onPlaceOrder={handlePlaceOrder}
+            busy={busy}
+          />
+        </div>
 
       </div>
     </section>

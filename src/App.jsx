@@ -20,19 +20,23 @@ import CartPage from './pages/CartPage.jsx'
 import OrdersPage from './pages/OrdersPage.jsx'
 import NotFoundPage from './pages/NotFoundPage.jsx'
 
-// Import the two new authentication pages for Week 5.
+// Import the two authentication pages from Week 5.
 import LoginPage from './pages/LoginPage.jsx'
 import RegisterPage from './pages/RegisterPage.jsx'
 
+// Import the Firestore seeding page for Week 6.
+import SeedPage from './pages/SeedPage.jsx'
+
 // Main CampusEats application component.
 //
-// Week 5 architecture:
+// Week 6 architecture:
 // 1. BrowserRouter manages navigation using URLs.
 // 2. AuthProvider manages Firebase authentication.
-// 3. CartProvider shares cart and order data.
+// 3. CartProvider shares cart data across the application.
 // 4. Routes determines which page to display.
 // 5. Layout keeps Header and Footer visible.
 // 6. ProtectedRoute restricts Cart and Orders to signed-in users.
+// 7. SeedPage uploads demo vendors and menus into Firestore.
 function App() {
   return (
     <BrowserRouter>
@@ -72,6 +76,14 @@ function App() {
                 path="register"
                 element={<RegisterPage />}
               />
+
+              {/* DEVELOPMENT ONLY: Upload vendor and menu data to Firestore. */}
+              {import.meta.env.DEV && (
+                <Route
+                  path="seed"
+                  element={<SeedPage />}
+                />
+              )}
 
               {/* PROTECTED ROUTES: Only signed-in users can access these pages. */}
               <Route element={<ProtectedRoute />}>

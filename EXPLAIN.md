@@ -416,3 +416,245 @@ The application now includes reusable components, shared cart state, browser per
 I still need to develop the later backend features, especially storing restaurant and order information in Firestore and applying database security rules.
 
 The most important thing I learned is that building an application is not only about adding new features. I also need to understand how the different parts work together and make sure older features continue working after every change.
+
+---
+ 
+# Week 6 - Cloud Firestore: CRUD and Real-Time Data
+
+## 24. Why I added Cloud Firestore
+
+Before Week 6, CampusEats loaded restaurant information from `public/api/vendors.json`. The cart and previous orders were saved in the browser using `localStorage`.
+
+This worked for the earlier labs, but the data was not shared between browsers. If I changed a menu price in the JSON file, another user would not automatically see the new price.
+
+In Week 6, I started using Cloud Firestore to store restaurant menus and placed orders online. I kept Firebase Authentication from Week 5 and used it to identify which student placed each order.
+
+The shopping cart still uses `localStorage`. Only the restaurant data and completed orders have moved to Firestore.
+
+## 25. How I connected Firestore
+
+I used the same Firebase project that I created for Week 5. I created a Cloud Firestore database and added `getFirestore()` to `src/firebase.js`.
+
+```javascript
+import { getFirestore } from 'firebase/firestore'
+
+export const db = getFirestore(app)
+```
+
+The `db` variable is the connection that my service files use when reading and writing database documents.
+
+I learned that Firebase Authentication and Firestore are different services. Authentication manages user accounts, while Firestore stores application data such as vendors, menu items, and orders.
+
+## 26. How I organized the Firestore data
+
+Firestore stores information in collections and documents. For CampusEats, I used this structure:
+
+```text
+vendors
+  └── 2417185-jackals-corner
+      ├── name
+      ├── location
+      ├── openHours
+      └── menu
+          ├── 2417185-jc-1
+          ├── 2417185-jc-2
+          └── ...
+
+orders
+  ├── order-document-1
+  └── order-document-2
+```
+
+Each restaurant has its own document in `vendors`, and its menu items are stored in a `menu` subcollection. I use a top-level `orders` collection so I can load a student's orders even if they ordered from different restaurants.
+
+My own restaurant is Jackal's Corner. I also kept the three restaurants shared by classmates: Sarap Pagi, Mahasiswa Vendor, and Chef Haddif Expert. Together, the seed file contains four restaurants and 31 menu items.
+
+## 27. Why I created a services folder
+
+Instead of putting Firestore code directly into the page components, I created a `src/services` folder.
+
+- `vendors.js` handles vendor and menu subscriptions and uploading the sample data.
+- `orders.js` handles placing orders, reading a student's orders, changing pickup times, and cancelling orders.
+
+For example, a page can call `subscribeToVendors()` without needing to write the full Firestore query itself.
+
+This makes the pages easier for me to read. If I need to change how the database works, I can usually start with the service file instead of editing several components.
+
+## 28. How I uploaded the restaurant data
+
+My original restaurant information was still in `public/api/vendors.json`. I added a development-only `/seed` page to copy that data into Firestore.
+
+The page calls `seedDemoData()`, which uses `writeBatch()` to save the vendor documents and their menu items.
+
+```javascript
+const batch = writeBatch(db)
+
+batch.set(doc(db, 'vendors', id), vendor)
+
+await batch.commit()
+```
+
+A batch lets Firestore apply the writes together instead of saving only part of the data if a write fails.
+
+One problem I ran into was that the Home page showed **"No restaurants are available at the moment."** When I looked at Firebase Console, the Firestore database was empty. I learned that connecting the app to Firestore does not upload my JSON data automatically. I needed to use the `/seed` page first.
+
+I also updated the seeding logic to preserve an existing `specialEndsAt` Timestamp when uploading the menu data again.
+
+## 29. How live vendor and menu updates work
+
+In the previous labs, `useVendors()` used `fetch()` to read the JSON file once. In Week 6, I changed it to use Firestore's `onSnapshot()` through `subscribeToVendors()`.
+
+```javascript
+const unsubscribe = subscribeToVendors(
+  (data) => {
+    setVendors(data)
+    setLoading(false)
+  },
+  (err) => {
+    setError(err.message)
+    setLoading(false)
+  }
+)
+
+return unsubscribe
+```
+
+`onSnapshot()` keeps listening while the page is open. When a vendor or menu document changes in Firestore, the listener sends updated data to React.
+
+I also created `useVendor()` to listen to one restaurant document and its menu subcollection. Since these are two listeners, the hook cleans up both when the component is removed or the vendor ID changes.
+
+I learned that cleanup is important because I do not want old listeners to keep running after I leave a page.
+
+## 30. How placing an order works in Week 6
+
+I changed the checkout flow so completed orders are saved to Firestore instead of `localStorage`.
+
+The steps are:
+
+1. I add food to the cart and open the Cart page.
+2. `CheckoutForm` checks the name, mahallah, and pickup time.
+3. `CartPage.jsx` calls `placeOrders()` in `services/orders.js`.
+4. The function groups cart items by `vendorId` and creates one order document for each vendor.
+5. A Firestore batch saves the orders with their details and a `serverTimestamp()`.
+6. After the save succeeds, the app clears the cart and opens `/orders`.
+
+The important part is:
+
+```javascript
+await placeOrders(user, cart, details)
+clearCart()
+navigate('/orders')
+```
+
+I use `await` because I should not clear the cart before Firestore confirms that the order was saved. If the write fails, the app can show an error and keep the items in the cart.
+
+Each order also copies the vendor name, item names, prices, quantities, and total. This is useful because menu prices may change later, but the old order should still show what was recorded when the student placed it.
+
+## 31. How the Orders page updates live
+
+I created `useMyOrders()` to load the signed-in student's orders. It calls `subscribeToMyOrders()` with the student's Firebase UID.
+
+```javascript
+const q = query(
+  collection(db, 'orders'),
+  where('studentUid', '==', uid)
+)
+```
+
+This filters the query to orders with the matching `studentUid`. The listener uses `onSnapshot()`, so the Orders page receives new data when an order is added or changed.
+
+I also added `OrderStatus.jsx` to show the four stages:
+
+```text
+Received → Preparing → Ready → Collected
+```
+
+For example, if the `status` field changes from `Received` to `Preparing` in Firebase Console, the status tracker can update without refreshing the browser.
+
+I learned that I do not need to change the displayed orders manually after every database write. The Firestore listener updates the hook's state for me.
+
+## 32. How changing and cancelling orders works
+
+For B5, I added two functions in `services/orders.js`:
+
+```javascript
+export function changePickupTime(orderId, pickupTime) {
+  return updateDoc(doc(db, 'orders', orderId), { pickupTime })
+}
+
+export function cancelOrder(orderId) {
+  return deleteDoc(doc(db, 'orders', orderId))
+}
+```
+
+`updateDoc()` changes the pickup time without replacing the whole order. `deleteDoc()` removes the order document.
+
+I created `OrderActions.jsx` to show **Save time** and **Cancel order**. The Orders page shows these controls only when the order status is `Received`, because students should not change an order after the shop starts preparing it.
+
+I also learned that hiding buttons is not the same as protecting the database. The React app checks what to display, but proper Firestore Security Rules are still needed to stop unauthorized changes. These rules are covered in Week 7.
+
+## 33. How I updated my Daily Special feature
+
+My matric number ends with **5**, so I continued working on the Daily Special countdown for Jackal's Corner.
+
+In the earlier labs, the countdown used a fixed end time of `22:00` in the React code. For Week 6, I changed the design so the deadline comes from Firestore.
+
+The featured menu document uses two fields:
+
+- `special`: a Boolean that marks the menu item as the Daily Special.
+- `specialEndsAt`: a Firestore Timestamp containing the deadline.
+
+In `HomePage.jsx`, I find the special item with:
+
+```javascript
+const specialItem = specialMenu.find(
+  (item) => item.special === true
+)
+```
+
+In `DailySpecial.jsx`, I read the deadline using:
+
+```javascript
+const endMilliseconds = item.specialEndsAt?.toMillis?.()
+```
+
+The component compares that deadline with the current time and updates the countdown every second. Since the menu is loaded using `onSnapshot()`, changing `specialEndsAt` in Firestore can change the countdown without refreshing the page.
+
+I also kept my Week 5 authentication feature. Guests see a login prompt, while signed-in users can see a personalized Daily Special.
+
+## 34. What I checked and problems I faced
+
+I used `npm run lint` and `npm run build` while updating the project. One build completed successfully but showed a warning about a JavaScript bundle larger than 500 kB. I learned that this was a performance warning, not a build failure.
+
+I also received a lint warning in `useVendors.js` because I called `setLoading()` and `setError()` directly inside `useEffect()`. I moved those reset calls into the retry function and kept the Firestore listener inside the effect.
+
+Another problem was the empty Firestore database. My React app was running and I could log in, but no restaurants appeared because I had not uploaded the vendor data yet.
+
+The main Week 6 tests I need to check in the browser are:
+
+| Test | Expected result |
+| --- | --- |
+| Open Home page | Vendors load from Firestore |
+| Open Jackal's Corner | Menu items appear from its subcollection |
+| Change a menu price in Firebase Console | Price updates without refreshing |
+| Place an order | Order is saved in Firestore and cart clears |
+| Change an order status | Status tracker updates live |
+| Change pickup time while Received | Updated time appears in Firestore |
+| Cancel an order while Received | Order disappears from the page |
+| Change `specialEndsAt` | Daily Special countdown updates live |
+
+These are expected results to verify, not a claim that every browser test has already passed.
+
+## 35. What I learned from Week 6
+
+Week 6 helped me understand the difference between saving data in the browser and saving it in a cloud database.
+
+I learned how Firestore collections, documents, subcollections, and batches work. I also learned why `onSnapshot()` is useful when the app needs to show live data.
+
+The biggest change for me was separating database operations from React components. I now have service files to communicate with Firestore, hooks to manage live data, and pages to display it.
+
+I also learned that a successful build does not mean the database is ready. I still need to check Firebase Console and test the application in the browser.
+
+Week 6 made CampusEats feel more like a real food ordering application, although it is still a class project without payment processing or proper production security rules.
+
+---

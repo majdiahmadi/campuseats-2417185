@@ -1,109 +1,101 @@
 
 import { Link } from 'react-router'
-import { useCart } from '../hooks/useCart.js'
 
-// OrdersPage displays the customer's previously placed orders.
-// Orders are retrieved from the shared CartProvider.
+import OrderStatus from '../components/OrderStatus.jsx'
+import OrderActions from '../components/OrderActions.jsx'
+
+import { Loading, ErrorMessage } from '../components/Status.jsx'
+import { useMyOrders } from '../hooks/useMyOrders.js'
+
+// Display the signed-in student's live Firestore orders.
 export default function OrdersPage() {
 
-  // Access the shared order history through the useCart hook.
-  const { orders } = useCart()
+  // Get the student's orders from Firestore.
+  const { orders, loading, error } = useMyOrders()
 
-  // Format prices consistently in Malaysian Ringgit.
-  function formatPrice(price) {
-    return `RM ${Number(price).toFixed(2)}`
+  // Show a loading indicator while Firestore responds.
+  if (loading) {
+    return <Loading />
   }
 
-  // Format the date and time when an order was placed.
-  function formatDate(date) {
-    if (!date) return 'Date unavailable'
+  // Show any Firestore errors.
+  if (error) {
+    return (
+      <ErrorMessage
+        message={error}
+        onRetry={() => window.location.reload()}
+      />
+    )
+  }
 
-    return new Date(date).toLocaleString('en-MY')
+  // Display a message when the student has no orders.
+  if (orders.length === 0) {
+    return (
+      <section>
+        <h2 className="section-title">Your Orders</h2>
+
+        <div className="card">
+          <p className="muted">
+            You have not placed any orders yet.
+          </p>
+
+          <Link to="/">Browse Restaurants</Link>
+        </div>
+      </section>
+    )
   }
 
   return (
     <section>
 
-      {/* Display the page heading. */}
       <h2 className="section-title">
-        My Orders
+        Your Orders
       </h2>
 
-      {/* Display a message when no orders have been placed. */}
-      {orders.length === 0 ? (
-        <div className="card">
-          <h3>No orders yet</h3>
+      {/* Display every order belonging to this student. */}
+      <ul className="order-list">
+        {orders.map((order) => (
+          <li
+            key={order.id}
+            className="card"
+          >
 
-          <p className="muted">
-            You have not placed any orders.
-          </p>
+            {/* Restaurant and pickup time */}
+            <p className="cart-name">
+              {order.vendorName} · pickup {order.pickupTime}
+            </p>
 
-          {/* Allow customers to return to the restaurant list. */}
-          <Link to="/">
-            Browse Restaurants
-          </Link>
-        </div>
-      ) : (
-        // Display the order history, newest order first.
-        // CartProvider already saves new orders at the beginning.
-        <div className="grid">
-          {orders.map((order) => (
-            <article className="card" key={order.id}>
+            {/* List of ordered food items */}
+            <p className="muted">
+              {order.items
+                .map((item) => `${item.qty}× ${item.name}`)
+                .join(', ')}
+            </p>
 
-              {/* Display the order reference and status. */}
-              <h3>
-                Order #{String(order.id).slice(0, 8)}
-              </h3>
+            {/* Date and time the order was created */}
+            <p className="muted">
+              Placed{' '}
+              {order.createdAt
+                ? order.createdAt.toDate().toLocaleString('en-MY')
+                : 'just now'}
+            </p>
 
-              <p className="muted">
-                Placed: {formatDate(order.createdAt)}
-              </p>
+            {/* Total amount */}
+            <p className="price">
+              RM {order.total.toFixed(2)}
+            </p>
 
-              <p>
-                <strong>Status:</strong>{' '}
-                <span className="tag">
-                  {order.status ?? 'Received'}
-                </span>
-              </p>
+            {/* Real-time order progress */}
+            <OrderStatus status={order.status} />
 
-              {/* Display the customer's checkout details. */}
-              <p>
-                <strong>Name:</strong> {order.name}
-              </p>
+            {/* Allow changes only while the order is Received. */}
+            {order.status === 'Received' && (
+              <OrderActions order={order} />
+            )}
 
-              <p>
-                <strong>Mahallah:</strong> {order.mahallah}
-              </p>
-
-              <p>
-                <strong>Pickup Time:</strong>{' '}
-                {order.pickupTime ?? 'Not specified'}
-              </p>
-
-              <hr />
-
-              {/* Display the food items included in this order. */}
-              <h4>Ordered Items</h4>
-
-              <ul>
-                {(order.items ?? []).map((line) => (
-                  <li key={line.item.id}>
-                    {line.item.name} × {line.qty}
-                    {' — '}
-                    {formatPrice(line.item.price * line.qty)}
-                  </li>
-                ))}
-              </ul>
-
-              {/* Display the total price of the order. */}
-              <p className="price">
-                Total: {formatPrice(order.total)}
-              </p>
-
-            </article>
-          ))}
-        </div>
-      )}
+          </li>
+        ))}
+      </ul>
 
     </section>
   )

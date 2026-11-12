@@ -229,3 +229,77 @@ It helped me understand React concepts, find mistakes, and organize my code. How
 When this happened, I needed to check the actual files, compare the instructions, and make adjustments.
 
 I learned that AI can help me understand a problem, but I still need to know what the code does and test whether it works in my application.
+
+---
+
+## Week 6
+
+### Tool used
+
+- ChatGPT (OpenAI)
+
+### What I asked for
+
+I asked for help with Lab 6, mainly about connecting Cloud Firestore to my existing CampusEats application. I wanted to understand how to move my restaurant menus and orders from local storage into a cloud database.
+
+I also asked for help with:
+
+- Setting up Cloud Firestore in my Firebase project.
+- Creating a services folder to handle Firestore operations.
+- Uploading restaurant and menu data using the `/seed` page.
+- Replacing `fetch()` with `onSnapshot()` for real-time updates.
+- Saving orders to Firestore instead of `localStorage`.
+- Updating the Orders page to show live order statuses.
+- Adding functions to change pickup times and cancel orders.
+- Updating my Daily Special countdown to use a Firestore Timestamp.
+- Fixing lint warnings and checking my existing code.
+
+### What I used or changed
+
+- Connected Cloud Firestore to my existing Firebase application.
+- Created `vendors.js` and `orders.js` inside the services folder.
+- Added a Seed page to upload my restaurant data to Firestore.
+- Updated `useVendors.js` to listen for changes using `onSnapshot()`.
+- Created `useVendor.js` to load restaurant details and menu items separately.
+- Updated the Home and Vendor pages to read data from Firestore.
+- Changed the order system so completed orders are saved in Firestore while the cart stays in `localStorage`.
+- Added `useMyOrders.js` to load orders belonging to the signed-in user.
+- Created an order status tracker with Received, Preparing, Ready, and Collected stages.
+- Added functions to update pickup times and cancel orders.
+- Updated my Daily Special feature to use the `special` and `specialEndsAt` fields.
+- Updated the seeding function to preserve the Daily Special Timestamp.
+- Used `npm run lint` and `npm run build` to check my code.
+
+### One thing AI got wrong
+
+One problem I faced was when the Home page showed "No restaurants are available at the moment." At first, I was focusing on the React code, but the real problem was that my Firestore database was still empty.
+
+I checked Firebase Console and found that the vendors had not been uploaded yet. I then needed to use the `/seed` page to upload the data from `vendors.json`.
+
+I also received a React lint warning because the suggested `useVendors.js` code called `setLoading()` and `setError()` directly inside `useEffect()`. I fixed this by moving those calls into the retry function.
+
+These problems reminded me that AI-generated code can still have issues, even when the overall approach is correct.
+
+### What I learned
+
+I learned how Cloud Firestore stores information using collections and documents. I also learned that a restaurant's menu can be stored as a subcollection instead of keeping everything in one JSON file.
+
+Another important thing I learned was how `onSnapshot()` works. Unlike `fetch()`, which loads data once, `onSnapshot()` listens for changes and updates the application automatically.
+
+I also understood why it is better to keep Firestore functions in separate service files instead of putting all the database code inside React components.
+
+For my Daily Special feature, I learned how to use a Firestore Timestamp to control the countdown instead of using a fixed time in the code.
+
+Overall, Week 6 helped me understand how a React application can work with a real cloud database.
+
+### How I checked AI suggestions
+
+I compared the suggested code with my Week 6 lab sheet and the files I had already created in previous weeks.
+
+I tried to keep my existing cart, authentication, restaurant pages, and Daily Special working while adding Firestore.
+
+I also checked the Firebase Console when my restaurant data did not appear and used the terminal to find lint and build problems.
+
+This lab taught me that getting the code to compile is not enough. I also need to check the actual data in Firebase and test how the application behaves in the browser.
+
+---

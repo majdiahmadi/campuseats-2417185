@@ -4,80 +4,79 @@ import VendorCard from '../components/VendorCard.jsx'
 import DailySpecial from '../components/DailySpecial.jsx'
 import { Loading, ErrorMessage } from '../components/Status.jsx'
 import { useVendors } from '../hooks/useVendors.js'
+import { useVendor } from '../hooks/useVendor.js'
 
-// HomePage displays the available restaurants and today's special.
-// It also implements the Week 4 step of our personal feature.
+// Unique ID for Jackal's Corner.
+const SPECIAL_VENDOR_ID = '2417185-jackals-corner'
+
+// HomePage displays live restaurants and today's special.
 export default function HomePage() {
 
-  // Load restaurant data using our custom hook.
+  // Load all restaurants from Firestore.
   const { vendors, loading, error, reload } = useVendors()
 
-  // Show a loading message while fetching data.
+  // Load Jackal's Corner and its menu separately.
+  const {
+    menu: specialMenu,
+    error: specialError
+  } = useVendor(SPECIAL_VENDOR_ID)
+
+  // Show loading while restaurant data is being retrieved.
   if (loading) {
     return <Loading />
   }
 
-  // Show an error message with a retry option.
+  // Show errors and allow the user to retry.
   if (error) {
     return <ErrorMessage message={error} onRetry={reload} />
   }
 
-  // Find Jackal's Corner using its unique restaurant ID.
-  const specialVendor = vendors.find(
-    (vendor) => vendor.id === '2417185-jackals-corner'
+  // Find the featured menu item using its Firestore special field.
+  const specialItem = specialMenu.find(
+    (item) => item.special === true
   )
 
-  // Find our featured menu item: Jackal's Signature Chicken Chop.
-  // This is the same special used in our Week 3 App.jsx.
-  const specialItem = specialVendor?.menu?.find(
-    (item) => item.id === '2417185-jc-1'
-  )
-
-  // Create a copy of the vendor list and keep our restaurant first.
-  // The original fetched array is not modified.
+  // Keep Jackal's Corner first in the restaurant list.
   const sortedVendors = [...vendors].sort((a, b) => {
-    if (a.id === '2417185-jackals-corner') return -1
-    if (b.id === '2417185-jackals-corner') return 1
+    if (a.id === SPECIAL_VENDOR_ID) return -1
+    if (b.id === SPECIAL_VENDOR_ID) return 1
     return 0
   })
 
   return (
     <>
-      {/* Display today's featured menu item with a countdown. */}
+      {/* Show an error if the special menu cannot be loaded. */}
+      {specialError && (
+        <p className="field-error" role="alert">
+          Could not load today's special: {specialError}
+        </p>
+      )}
 
-{/* Display today's special with its countdown and vendor link. */}
-{specialItem && (
-  <section>
-    {/* Reuse the Week 3 DailySpecial component.
-        It already displays the Today's Special heading. */}
-    <DailySpecial
-      item={specialItem}
-      endTime="22:00"
-    />
+      {/* Display the daily special using Firestore Timestamp. */}
+      {specialItem && (
+        <section>
+          <DailySpecial item={specialItem} />
 
-    {/* Week 4 requirement: link the special to its vendor page. */}
-    <p>
-      <Link to={`/vendor/${specialVendor.id}`}>
-        View Jackal's Corner Menu
-      </Link>
-    </p>
-  </section>
-)}
+          <p>
+            <Link to={`/vendor/${SPECIAL_VENDOR_ID}`}>
+              View Jackal's Corner Menu
+            </Link>
+          </p>
+        </section>
+      )}
 
-      {/* Display the list of available restaurants. */}
+      {/* Display the list of restaurants from Firestore. */}
       <section>
         <h2 className="section-title">
           Campus Food Vendors
         </h2>
 
-        {/* Show a message when no restaurants exist. */}
         {sortedVendors.length === 0 ? (
           <p className="muted">
             No restaurants are available at the moment.
           </p>
         ) : (
           <div className="vendor-grid">
-            {/* Render each restaurant using VendorCard. */}
             {sortedVendors.map((vendor) => (
               <VendorCard
                 key={vendor.id}

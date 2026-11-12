@@ -3,19 +3,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router'
 import { useAuth } from '../hooks/useAuth.js'
 
-// Calculate seconds until today's closing time
-function getRemainingSeconds(endTime) {
-  const now = new Date()
-  const end = new Date()
-
-  const [hours, minutes] = endTime.split(':').map(Number)
-
-  end.setHours(hours, minutes, 0, 0)
-
-  return Math.max(0, Math.floor((end - now) / 1000))
-}
-
-// Convert seconds to HH:MM:SS
+// Convert seconds into HH:MM:SS.
 function formatCountdown(seconds) {
   const hours = Math.floor(seconds / 3600)
   const minutes = Math.floor((seconds % 3600) / 60)
@@ -26,38 +14,38 @@ function formatCountdown(seconds) {
     .join(':')
 }
 
-function DailySpecial({ item, endTime = '22:00' }) {
+// Display the special using a Firestore Timestamp.
+function DailySpecial({ item }) {
+
+  // Check the currently signed-in Firebase user.
   const { user, loading } = useAuth()
 
-  const [remaining, setRemaining] = useState(
-    () => getRemainingSeconds(endTime)
-  )
+  // Store the current time for the countdown.
+  const [now, setNow] = useState(() => Date.now())
 
+  // Update the current time every second.
   useEffect(() => {
-    function updateCountdown() {
-      setRemaining(getRemainingSeconds(endTime))
-    }
 
-    // Update immediately
-    updateCountdown()
+    const intervalId = setInterval(() => {
+      setNow(Date.now())
+    }, 1000)
 
-    // Update every second
-    const intervalId = setInterval(updateCountdown, 1000)
-
-    // Cleanup when component unmounts
+    // Stop the interval when the component unmounts.
     return () => clearInterval(intervalId)
-  }, [endTime])
 
+  }, [])
+
+  // Do not display the component without an item.
   if (!item) {
     return null
   }
 
-  // Wait until Firebase finishes checking authentication
+  // Wait for Firebase Authentication to finish.
   if (loading) {
     return null
   }
 
-  // Guests must log in to see the daily special
+  // Guests must log in to see the special.
   if (!user) {
     return (
       <section className="card daily-special">
@@ -72,9 +60,32 @@ function DailySpecial({ item, endTime = '22:00' }) {
     )
   }
 
-  // Signed-in users can see the personalized daily special
+  // Read the ending time directly from Firestore.
+  const endMilliseconds =
+    item.specialEndsAt?.toMillis?.()
+
+  // Make sure the Timestamp exists.
+  if (endMilliseconds === undefined) {
+    return (
+      <section className="card daily-special">
+        <h2>Today's Special</h2>
+
+        <p className="field-error">
+          Special ending time is not configured.
+        </p>
+      </section>
+    )
+  }
+
+  // Calculate the remaining seconds.
+  const remaining = Math.max(
+    0,
+    Math.ceil((endMilliseconds - now) / 1000)
+  )
+
   return (
     <section className="card daily-special">
+
       <h2>
         Today's special for {user.displayName || user.email}
       </h2>
@@ -96,6 +107,7 @@ function DailySpecial({ item, endTime = '22:00' }) {
           Today's special has ended.
         </p>
       )}
+
     </section>
   )
 }
